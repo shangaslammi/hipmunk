@@ -1,0 +1,53 @@
+Cabal-Version: >= 1.2
+Category:      Physics
+Name:          Hipmunk
+Version:       0.1
+Stability:     alpha
+License:       OtherLicense
+License-File:  LICENSE
+Copyright:     (c) 2008 Felipe A. Lessa
+Author:        Felipe A. Lessa <felipe.lessa@gmail.com>
+Maintainer:    Felipe A. Lessa <felipe.lessa@gmail.com>
+Synopsis:      A Haskell binding for Chipmunk.
+Description:
+      Chipmunk is a fast, simple, portable, 2D physics engine
+      (http://wiki.slembcke.net/main/published/Chipmunk).
+      .
+      This package contains the Chipmunk 4.0.2 source and
+      Haskell bindings to all of its functions.
+      .
+      Licensed under the MIT license (like Chipmunk itself).
+
+Library
+  Exposed-Modules:
+      Physics.Hipmunk.Common,
+      Physics.Hipmunk.Body,
+      Physics.Hipmunk.Shape
+  Other-Modules:
+      Physics.Hipmunk.Internal
+  Include-Dirs:
+      Physics/Hipmunk,
+      Chipmunk-4.0.2-src
+  Includes:
+      wrapper.h
+  C-Sources:
+      Chipmunk-4.0.2-src/chipmunk.c,
+      Chipmunk-4.0.2-src/cpArbiter.c,
+      Chipmunk-4.0.2-src/cpArray.c,
+      Chipmunk-4.0.2-src/cpBB.c,
+      Chipmunk-4.0.2-src/cpBody.c,
+      Chipmunk-4.0.2-src/cpCollision.c,
+      Chipmunk-4.0.2-src/cpHashSet.c,
+      Chipmunk-4.0.2-src/cpJoint.c,
+      Chipmunk-4.0.2-src/cpPolyShape.c,
+      Chipmunk-4.0.2-src/cpShape.c,
+      Chipmunk-4.0.2-src/cpSpace.c,
+      Chipmunk-4.0.2-src/cpSpaceHash.c,
+      Chipmunk-4.0.2-src/cpVect.c,
+      Physics/Hipmunk/wrapper.c
+  Build-Depends: base
+  Extensions:    CPP, ForeignFunctionInterface
+  Build-Tools:   hsc2hs
+  GHC-Options:   -O2 -Wall
+  CC-Options:    -O3 -ffast-math -std=gnu99
+  LD-Options:    -lm
