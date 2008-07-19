@@ -207,7 +207,7 @@ slew (B b) newpos dt = do
 
 
 -- | @updateVelocity b gravity damping dt@ redefines body @b@'s
---   linear and angular velocity to account for the force/torque
+--   linear and angular velocity to account for the force\/torque
 --   being applied to it, the gravity and a damping factor
 --   during @dt@ time using Euler integration.
 --
@@ -287,8 +287,8 @@ foreign import ccall unsafe "wrapper.h"
 -- | @dampedSpring (b1,a1) (b2,a2) rlen k dmp dt@ applies a damped
 --   spring force between bodies @b1@ and @b2@ at anchors
 --   @a1@ and @a2@, respectively. @k@ is the spring constant
---   (force/distance), @rlen@ is the rest length of the spring,
---   @dmp@ is the damping constant (force/velocity), and @dt@
+--   (force\/distance), @rlen@ is the rest length of the spring,
+--   @dmp@ is the damping constant (force\/velocity), and @dt@
 --   is the time step to apply the force over. Both anchors are
 --   in body coordinates.
 --

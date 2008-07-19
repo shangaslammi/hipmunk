@@ -114,26 +114,26 @@ scale (Vector x y) s = Vector (x*s) (y*s)
 toAngle :: Vector -> Angle
 toAngle (Vector x y) = atan2 y x
 
--- | @v1 `dot` v2@ computes the familiar dot operation.
+-- | @v1 \`dot\` v2@ computes the familiar dot operation.
 dot :: Vector -> Vector -> CpFloat
 dot (Vector x1 y1) (Vector x2 y2) = x1*x2 + y1*y2
 
--- | @v1 `cross` v2@ computes the familiar cross operation.
+-- | @v1 \`cross\` v2@ computes the familiar cross operation.
 cross :: Vector -> Vector -> CpFloat
 cross (Vector x1 y1) (Vector x2 y2) = x1*y2 - y1*x2
 
 -- | @perp v@ is a vector of same length as @v@ but perpendicular
---   to @v@ (i.e. @toAngle (perp v) - toAngle v@ equals @pi/2@
+--   to @v@ (i.e. @toAngle (perp v) - toAngle v@ equals @pi\/2@
 --   modulo @2*pi@).
 perp :: Vector -> Vector
 perp (Vector x y) = Vector (-y) x
 
--- | @v1 `project` v2@ is the vector projection of @v1@ onto @v2@.
+-- | @v1 \`project\` v2@ is the vector projection of @v1@ onto @v2@.
 project :: Vector -> Vector -> Vector
 project v1 v2 = v2 `scale` s
     where s = (v1 `dot` v2) / (v2 `dot` v2)
 
--- | @v1 `rotate` v2@ uses complex multiplication
+-- | @v1 \`rotate\` v2@ uses complex multiplication
 --   to rotate (and scale) @v1@ by @v2@.
 rotate :: Vector -> Vector -> Vector
 rotate (Vector x1 y1) (Vector x2 y2) = Vector x3 y3
