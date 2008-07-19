@@ -24,13 +24,16 @@ module Physics.Hipmunk.Shape
      setFriction,
      SurfaceVel,
      getSurfaceVel,
-     setSurfaceVel
+     setSurfaceVel,
+
+     -- * Calculating moments
+     momentForCircle,
+     momentForPoly
     )
     where
 
 import Foreign hiding (rotate, new)
 import Foreign.C
-
 #include "wrapper.h"
 
 import Physics.Hipmunk.Common
@@ -220,15 +223,31 @@ setSurfaceVel (S shape _) sv =
 
 
 
+-- | @momentForCircle m (ri,ro) off@ is the moment of inertia
+--   of a circle of @m@ mass, inner radius of @i@, outer radius
+--   of @ro@ and at an offset @off@ from the center of the body.
+momentForCircle :: CpFloat -> (CpFloat, CpFloat) -> Position -> CpFloat
+momentForCircle m (ri,ro) off = (m/2)*(ri*ri + ro*ro) + m*(off `dot` off)
+-- We recoded the C function to avoid FFI and unsafePerformIO
+-- on this simple function.
 
 
+-- | @momentForPoly m verts off@ is the moment of inertia of a
+--   polygon of @m@ mass, at offset @off@ from the center of
+--   the body and comprised of @verts@ vertices. This is similar
+--   to 'attachPoly' (and the same restrictions for the vertices
+--   apply as well).
+momentForPoly :: CpFloat -> [Position] -> Position -> CpFloat
+momentForPoly m verts off = (m*sum1)/(6*sum2)
+  where
+    verts' = if off /= 0 then map (+off) verts else verts
+    (sum1,sum2) = calc (zip verts' $ tail $ cycle verts') 0 0
 
-
-
-
-
-
-
-
-
-
+    calc a b c | a `seq` b `seq` c `seq` False = undefined
+    calc []           acc1 acc2 = (acc1, acc2)
+    calc ((v1,v2):vs) acc1 acc2 =
+      let a = v2 `cross` v1
+          b = v1 `dot` v1 + v1 `dot` v2 + v2 `dot` v2
+      in calc vs (acc1 + a*b) (acc2 + a)
+-- We recoded the C function to avoid FFI, unsafePerformIO
+-- and a bunch of malloc + poke. Is it worth?
