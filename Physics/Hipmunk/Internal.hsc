@@ -7,7 +7,11 @@ module Physics.Hipmunk.Internal
 
      ShapeInternal,
      ShapePtr,
-     Shape(..)
+     Shape(..),
+
+     JointInternal,
+     JointPtr,
+     Joint(..)
     )
     where
 
@@ -59,3 +63,11 @@ data Shape = S !(ForeignPtr ShapeInternal) !Body
 -- However, the body doesn't need to keep references to
 -- the attached shapes because cpBody do not reference them,
 -- so it wouldn't notice at all if they disappeared =).
+
+
+
+data JointInternal = JointInternal
+type JointPtr = Ptr JointInternal
+data Joint = J !(ForeignPtr JointInternal) !Body !Body
+-- ^ A joint represents a constrain between two bodies. Don't
+--   forget to add the bodies and the joint to the space.

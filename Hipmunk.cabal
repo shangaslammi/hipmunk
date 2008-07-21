@@ -23,7 +23,8 @@ Library
   Exposed-Modules:
       Physics.Hipmunk.Common,
       Physics.Hipmunk.Body,
-      Physics.Hipmunk.Shape
+      Physics.Hipmunk.Shape,
+      Physics.Hipmunk.Joint
   Other-Modules:
       Physics.Hipmunk.Internal
   Include-Dirs:

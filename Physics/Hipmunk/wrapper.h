@@ -22,4 +22,15 @@ int wrShapePointQuery(cpShape *shape, cpVect *p);
 void wrPolyShapeInit(cpPolyShape *poly, cpBody *body,
                      int numVerts, cpVect *verts, cpVect *offset);
 
+// From cpJoint.h
+void wrPinJointInit(cpPinJoint *joint, cpBody *a, cpBody *b,
+                    cpVect *anchr1, cpVect *anchr2);
+void wrSlideJointInit(cpSlideJoint *joint, cpBody *a, cpBody *b,
+                      cpVect *anchr1, cpVect *anchr2,
+                      cpFloat min, cpFloat max);
+void wrPivotJointInit(cpPivotJoint *joint, cpBody *a,
+                      cpBody *b, cpVect *pivot);
+void wrGrooveJointInit(cpGrooveJoint *joint, cpBody *a, cpBody *b,
+                       cpVect *groove_a, cpVect *groove_b, cpVect *anchr2);
+
 #endif
