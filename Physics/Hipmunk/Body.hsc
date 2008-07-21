@@ -45,7 +45,7 @@ import Physics.Hipmunk.Internal
 --   It is recommended to call 'setPosition' afterwards.
 body :: CpFloat -> CpFloat -> IO Body
 body mass inertia = do
-  b <- mallocForeignPtr
+  b <- mallocForeignPtrBytes #{size cpBody}
   withForeignPtr b $ \ptr -> do
     cpBodyInit ptr mass inertia
   return (B b)

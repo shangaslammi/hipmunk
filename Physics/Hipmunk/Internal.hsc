@@ -32,11 +32,11 @@ newtype Body = B (ForeignPtr BodyInternal)
 --   but without a shape. It may help to think as a particle that
 --   is able to rotate.
 
-instance Storable BodyInternal where
-    sizeOf _    = #{size cpBody}
-    alignment _ = alignment (undefined :: Vector)
-    peek _      = fail "Body.Internal peek not implemented"
-    poke _ _    = fail "Body.Internal poke not implemented"
+instance Eq Body where
+    B b1 == B b2 = b1 == b2
+
+instance Ord Body where
+    B b1 `compare` B b2 = b1 `compare` b2
 
 
 
@@ -51,10 +51,6 @@ data Shape = S !(ForeignPtr ShapeInternal) !Body
 --   Note that to have any effect, a 'Shape' must also be
 --   added to a 'Space', even if the body was already added.
 
--- We'll not implement Storable for ShapeInternal because
--- the size needed depends on the actual shape
--- and we'll not distinguish between them.
---
 -- Note also that we have to maintain a reference to the
 -- 'Body' to avoid garbage collection in the case that
 -- the user doesn't add the body to a space and don't keep
@@ -63,6 +59,14 @@ data Shape = S !(ForeignPtr ShapeInternal) !Body
 -- However, the body doesn't need to keep references to
 -- the attached shapes because cpBody do not reference them,
 -- so it wouldn't notice at all if they disappeared =).
+-- A space would notice, but then the space will keep its
+-- own reference the the shape.
+
+instance Eq Shape where
+    S s1 _ == S s2 _ = s1 == s2
+
+instance Ord Shape where
+    S s1 _ `compare` S s2 _ = s1 `compare` s2
 
 
 
@@ -71,3 +75,11 @@ type JointPtr = Ptr JointInternal
 data Joint = J !(ForeignPtr JointInternal) !Body !Body
 -- ^ A joint represents a constrain between two bodies. Don't
 --   forget to add the bodies and the joint to the space.
+
+instance Eq Joint where
+    J j1 _ _ == J j2 _ _ = j1 == j2
+
+instance Ord Joint where
+    J j1 _ _ `compare` J j2 _ _ = j1 `compare` j2
+
+
