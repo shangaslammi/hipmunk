@@ -1,15 +1,12 @@
 module Physics.Hipmunk.Internal
     (VectorPtr,
 
-     BodyInternal,
      BodyPtr,
      Body(..),
 
-     ShapeInternal,
      ShapePtr,
      Shape(..),
 
-     JointInternal,
      JointPtr,
      Joint(..)
     )
@@ -25,9 +22,8 @@ type VectorPtr = Ptr Vector
 
 
 
-data BodyInternal = BodyInternal
-type BodyPtr = Ptr BodyInternal
-newtype Body = B (ForeignPtr BodyInternal)
+type BodyPtr = Ptr Body
+newtype Body = B (ForeignPtr Body)
 -- ^ A rigid body representing the physical properties of an object,
 --   but without a shape. It may help to think as a particle that
 --   is able to rotate.
@@ -40,9 +36,8 @@ instance Ord Body where
 
 
 
-data ShapeInternal = ShapeInternal
-type ShapePtr = Ptr ShapeInternal
-data Shape = S !(ForeignPtr ShapeInternal) !Body
+type ShapePtr = Ptr Shape
+data Shape = S !(ForeignPtr Shape) !Body
 -- ^ A collision shape is attached to a @Body@ to define its
 --   shape. Multiple shapes may be attached, including
 --   overlapping ones (shapes of a body don't generate collisions
@@ -70,9 +65,8 @@ instance Ord Shape where
 
 
 
-data JointInternal = JointInternal
-type JointPtr = Ptr JointInternal
-data Joint = J !(ForeignPtr JointInternal) !Body !Body
+type JointPtr = Ptr Joint
+data Joint = J !(ForeignPtr Joint) !Body !Body
 -- ^ A joint represents a constrain between two bodies. Don't
 --   forget to add the bodies and the joint to the space.
 
