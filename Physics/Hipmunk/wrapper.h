@@ -16,6 +16,7 @@ void wrCircleShapeInit(cpCircleShape *circle, cpBody *body,
                        cpVect *offset, cpFloat radius);
 void wrSegmentShapeInit(cpSegmentShape *seg, cpBody *body,
                         cpVect *a, cpVect *b, cpFloat r);
+int wrShapePointQuery(cpShape *shape, cpVect *p);
 
 // From cpPolyShape.h
 void wrPolyShapeInit(cpPolyShape *poly, cpBody *body,

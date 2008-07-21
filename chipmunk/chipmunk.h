@@ -37,8 +37,13 @@ cpfmin(cpFloat a, cpFloat b)
 	return (a < b) ? a : b;
 }
 
+static inline cpFloat
+cpfclamp(cpFloat f, cpFloat min, cpFloat max){
+	return cpfmin(cpfmax(f, min), max);
+}
+
 #ifndef INFINITY
-	#ifdef _WIN32
+	#ifdef _MSC_VER
 		union MSVC_EVIL_FLOAT_HACK
 		{
 			unsigned __int8 Bytes[4];

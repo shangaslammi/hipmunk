@@ -1,17 +1,17 @@
 {-# CFILES
-      Chipmunk-4.0.2-src/chipmunk.c
-      Chipmunk-4.0.2-src/cpArbiter.c
-      Chipmunk-4.0.2-src/cpArray.c
-      Chipmunk-4.0.2-src/cpBB.c
-      Chipmunk-4.0.2-src/cpBody.c
-      Chipmunk-4.0.2-src/cpCollision.c
-      Chipmunk-4.0.2-src/cpHashSet.c
-      Chipmunk-4.0.2-src/cpJoint.c
-      Chipmunk-4.0.2-src/cpPolyShape.c
-      Chipmunk-4.0.2-src/cpShape.c
-      Chipmunk-4.0.2-src/cpSpace.c
-      Chipmunk-4.0.2-src/cpSpaceHash.c
-      Chipmunk-4.0.2-src/cpVect.c
+      chipmunk/chipmunk.c
+      chipmunk/cpArbiter.c
+      chipmunk/cpArray.c
+      chipmunk/cpBB.c
+      chipmunk/cpBody.c
+      chipmunk/cpCollision.c
+      chipmunk/cpHashSet.c
+      chipmunk/cpJoint.c
+      chipmunk/cpPolyShape.c
+      chipmunk/cpShape.c
+      chipmunk/cpSpace.c
+      chipmunk/cpSpaceHash.c
+      chipmunk/cpVect.c
       Physics/Hipmunk/wrapper.c #-}
 
 module Physics.Hipmunk.Common
@@ -72,8 +72,8 @@ type Position = Vector
 
 
 instance Num Vector where
-    (Vector x1 y1) + (Vector x2 y2) = Vector (x1+y1) (x2+y2)
-    (Vector x1 y1) - (Vector x2 y2) = Vector (x1-y1) (x2-y2)
+    (Vector x1 y1) + (Vector x2 y2) = Vector (x1+x2) (y1+y2)
+    (Vector x1 y1) - (Vector x2 y2) = Vector (x1-x2) (y1-y2)
     negate (Vector x1 y1)           = Vector (-x1) (-y1)
     abs v                           = Vector (len v) 0
     fromInteger n                   = Vector (fromInteger n) 0

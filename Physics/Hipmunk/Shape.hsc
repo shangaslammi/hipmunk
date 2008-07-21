@@ -26,9 +26,10 @@ module Physics.Hipmunk.Shape
      getSurfaceVel,
      setSurfaceVel,
 
-     -- * Calculating moments
+     -- * Utilities
      momentForCircle,
-     momentForPoly
+     momentForPoly,
+     pointQuery
     )
     where
 
@@ -251,3 +252,17 @@ momentForPoly m verts off = (m*sum1)/(6*sum2)
       in calc vs (acc1 + a*b) (acc2 + a)
 -- We recoded the C function to avoid FFI, unsafePerformIO
 -- and a bunch of malloc + poke. Is it worth?
+
+
+-- | @pointQuery shape p@ returns @True@ iff the point in
+--   position @p@ (in world's coordinates) lies within
+--   the shape @shape@.
+pointQuery :: Shape -> Position -> IO Bool
+pointQuery (S shape _) p =
+  withForeignPtr shape $ \shape_ptr ->
+  with p $ \p_ptr -> do
+    i <- wrShapePointQuery shape_ptr p_ptr
+    return (i /= 0)
+
+foreign import ccall unsafe "wrapper.h"
+    wrShapePointQuery :: ShapePtr -> VectorPtr -> IO CInt

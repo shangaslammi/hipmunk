@@ -50,7 +50,7 @@ new mass inertia = do
     cpBodyInit ptr mass inertia
   return (B b)
 
-foreign import ccall unsafe "chipmunk.h"
+foreign import ccall unsafe "wrapper.h"
     cpBodyInit :: BodyPtr -> CpFloat -> CpFloat -> IO ()
 
 
@@ -67,7 +67,7 @@ setMass (B b) m = do
   withForeignPtr b $ \ptr -> do
     cpBodySetMass ptr m
 
-foreign import ccall unsafe "chipmunk.h"
+foreign import ccall unsafe "wrapper.h"
     cpBodySetMass :: BodyPtr -> CpFloat -> IO ()
 
 
@@ -86,7 +86,7 @@ setMoment (B b) i = do
   withForeignPtr b $ \ptr -> do
     cpBodySetMoment ptr i
 
-foreign import ccall unsafe "chipmunk.h"
+foreign import ccall unsafe "wrapper.h"
     cpBodySetMoment :: BodyPtr -> CpFloat -> IO ()
 
 
@@ -105,7 +105,7 @@ setAngle (B b) a = do
   withForeignPtr b $ \ptr -> do
     cpBodySetAngle ptr a
 
-foreign import ccall unsafe "chipmunk.h"
+foreign import ccall unsafe "wrapper.h"
     cpBodySetAngle :: BodyPtr -> CpFloat -> IO ()
 
 
@@ -203,7 +203,7 @@ slew :: Body -> Position -> Time -> IO ()
 slew (B b) newpos dt = do
   withForeignPtr b $ \ptr -> do
     p <- #{peek cpBody, p} ptr
-    #{poke cpBody, v} ptr $ (p - newpos) `scale` (recip dt)
+    #{poke cpBody, v} ptr $ (newpos - p) `scale` (recip dt)
 
 
 -- | @updateVelocity b gravity damping dt@ redefines body @b@'s

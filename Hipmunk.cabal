@@ -13,8 +13,9 @@ Description:
       Chipmunk is a fast, simple, portable, 2D physics engine
       (<http://wiki.slembcke.net/main/published/Chipmunk>).
       .
-      This package contains the Chipmunk 4.0.2 source and
-      Haskell bindings to all of its functions.
+      This package contains the Chipmunk rev4 source
+      (from <http://chipmunk-physics.googlecode.com/svn/trunk/>)
+      and Haskell bindings to all of its functions.
       .
       Licensed under the MIT license (like Chipmunk itself).
 
@@ -27,23 +28,23 @@ Library
       Physics.Hipmunk.Internal
   Include-Dirs:
       Physics/Hipmunk,
-      Chipmunk-4.0.2-src
+      chipmunk
   Includes:
       wrapper.h
   C-Sources:
-      Chipmunk-4.0.2-src/chipmunk.c,
-      Chipmunk-4.0.2-src/cpArbiter.c,
-      Chipmunk-4.0.2-src/cpArray.c,
-      Chipmunk-4.0.2-src/cpBB.c,
-      Chipmunk-4.0.2-src/cpBody.c,
-      Chipmunk-4.0.2-src/cpCollision.c,
-      Chipmunk-4.0.2-src/cpHashSet.c,
-      Chipmunk-4.0.2-src/cpJoint.c,
-      Chipmunk-4.0.2-src/cpPolyShape.c,
-      Chipmunk-4.0.2-src/cpShape.c,
-      Chipmunk-4.0.2-src/cpSpace.c,
-      Chipmunk-4.0.2-src/cpSpaceHash.c,
-      Chipmunk-4.0.2-src/cpVect.c,
+      chipmunk/chipmunk.c,
+      chipmunk/cpArbiter.c,
+      chipmunk/cpArray.c,
+      chipmunk/cpBB.c,
+      chipmunk/cpBody.c,
+      chipmunk/cpCollision.c,
+      chipmunk/cpHashSet.c,
+      chipmunk/cpJoint.c,
+      chipmunk/cpPolyShape.c,
+      chipmunk/cpShape.c,
+      chipmunk/cpSpace.c,
+      chipmunk/cpSpaceHash.c,
+      chipmunk/cpVect.c,
       Physics/Hipmunk/wrapper.c
   Build-Depends: base
   Extensions:    CPP, ForeignFunctionInterface
