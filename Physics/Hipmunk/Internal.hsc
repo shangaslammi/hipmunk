@@ -22,11 +22,11 @@ type VectorPtr = Ptr Vector
 
 
 
-type BodyPtr = Ptr Body
-newtype Body = B (ForeignPtr Body)
--- ^ A rigid body representing the physical properties of an object,
+-- | A rigid body representing the physical properties of an object,
 --   but without a shape. It may help to think as a particle that
 --   is able to rotate.
+newtype Body = B (ForeignPtr Body)
+type BodyPtr = Ptr Body
 
 instance Eq Body where
     B b1 == B b2 = b1 == b2
@@ -36,15 +36,15 @@ instance Ord Body where
 
 
 
-type ShapePtr = Ptr Shape
-data Shape = S !(ForeignPtr Shape) !Body
--- ^ A collision shape is attached to a @Body@ to define its
+-- | A collision shape is attached to a @Body@ to define its
 --   shape. Multiple shapes may be attached, including
 --   overlapping ones (shapes of a body don't generate collisions
 --   with each other).
 --
 --   Note that to have any effect, a 'Shape' must also be
 --   added to a 'Space', even if the body was already added.
+data Shape = S !(ForeignPtr Shape) !Body
+type ShapePtr = Ptr Shape
 
 -- Note also that we have to maintain a reference to the
 -- 'Body' to avoid garbage collection in the case that
@@ -65,10 +65,10 @@ instance Ord Shape where
 
 
 
-type JointPtr = Ptr Joint
-data Joint = J !(ForeignPtr Joint) !Body !Body
--- ^ A joint represents a constrain between two bodies. Don't
+-- | A joint represents a constrain between two bodies. Don't
 --   forget to add the bodies and the joint to the space.
+data Joint = J !(ForeignPtr Joint) !Body !Body
+type JointPtr = Ptr Joint
 
 instance Eq Joint where
     J j1 _ _ == J j2 _ _ = j1 == j2
