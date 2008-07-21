@@ -15,7 +15,10 @@
       Physics/Hipmunk/wrapper.c #-}
 
 module Physics.Hipmunk.Common
-    (-- * Basic data types
+    (-- * Initialization
+     initChipmunk,
+
+     -- * Basic data types
      CpFloat,
      infinity,
      Time,
@@ -42,7 +45,16 @@ import Foreign hiding (rotate)
 #include "wrapper.h"
 
 error' :: String -> a
-error' = error . ("Physics.Hipmunk.Vector: " ++)
+error' = error . ("Physics.Hipmunk.Common: " ++)
+
+-- | Initilizes the Chipmunk library. This should be called
+--   once before using any functions of this library.
+initChipmunk :: IO ()
+initChipmunk = cpInitChipmunk
+
+foreign import ccall unsafe "wrapper.h"
+    cpInitChipmunk :: IO ()
+
 
 -- | The floating point type used internally in Chipmunk.
 type CpFloat = #{type cpFloat}
