@@ -25,6 +25,7 @@ Flag small_base
 
 Library
   Exposed-Modules:
+      Physics.Hipmunk,
       Physics.Hipmunk.Common,
       Physics.Hipmunk.Body,
       Physics.Hipmunk.Shape,
