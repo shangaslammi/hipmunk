@@ -138,7 +138,7 @@ getBody (S _ b) = b
 
 -- | The collision type is by collision calback...
 --   XXX Improve documentation after writing the rest of the bindings.
-type CollisionType = #{type unsigned long}
+type CollisionType = #{type unsigned int}
 getCollisionType :: Shape -> IO CollisionType
 getCollisionType (S shape _) =
   withForeignPtr shape #{peek cpShape, collision_type}
@@ -157,7 +157,7 @@ setCollisionType (S shape _) col =
 --   objects such as ragdolls. It may be thought as a lightweight
 --   alternative to creating a callback that filters the
 --   collisions.
-type Group = #{type unsigned long}
+type Group = #{type unsigned int}
 getGroup :: Shape -> IO Group
 getGroup (S shape _) =
   withForeignPtr shape #{peek cpShape, group}
@@ -174,7 +174,7 @@ setGroup (S shape _) gr =
 --   for portability you should only rely on the lower 32 bits.
 --
 --   The default value is @0xFFFF@.
-type Layers = #{type unsigned long}
+type Layers = #{type unsigned int}
 getLayers :: Shape -> IO Layers
 getLayers (S shape _) =
   withForeignPtr shape #{peek cpShape, layers}
