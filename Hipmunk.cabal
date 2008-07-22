@@ -19,12 +19,17 @@ Description:
       .
       Licensed under the MIT license (like Chipmunk itself).
 
+Flag small_base
+  Description: Choose the new smaller, split-up base package.
+
+
 Library
   Exposed-Modules:
       Physics.Hipmunk.Common,
       Physics.Hipmunk.Body,
       Physics.Hipmunk.Shape,
-      Physics.Hipmunk.Joint
+      Physics.Hipmunk.Joint,
+      Physics.Hipmunk.Space
   Other-Modules:
       Physics.Hipmunk.Internal
   Include-Dirs:
@@ -48,6 +53,8 @@ Library
       chipmunk/cpVect.c,
       Physics/Hipmunk/wrapper.c
   Build-Depends: base
+  if flag(small_base)
+    Build-Depends: array, containers
   Extensions:    CPP, ForeignFunctionInterface
   Build-Tools:   hsc2hs
   GHC-Options:   -O2 -Wall
