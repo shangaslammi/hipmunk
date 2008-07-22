@@ -5,6 +5,7 @@ module Physics.Hipmunk.Shape
      attachSegment,
      attachPoly,
      resetCounter,
+     getBody,
 
      -- * Properties
      CollisionType,
@@ -127,6 +128,12 @@ resetCounter = cpResetShapeIdCounter
 
 foreign import ccall unsafe "wrapper.h"
     cpResetShapeIdCounter :: IO ()
+
+
+-- | @getBody s@ is the body that this shape is associated
+--   to. Useful especially in 'Physics.Hipmunk.Space.CollisionPair'.
+getBody :: Shape -> Body
+getBody (S _ b) = b
 
 
 -- | The collision type is by collision calback...
