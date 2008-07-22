@@ -1,5 +1,11 @@
 #include "wrapper.h"
 
+// New functions
+int wrConstantCallback(cpShape *a, cpShape *b, cpContact *contacts,
+                       int numContacts, cpFloat normal_coef, void *data) {
+    return ((int) data);
+}
+
 // From cpBody.h
 void wrBodyUpdateVelocity(cpBody *b, cpVect *g, cpFloat d, cpFloat dt) {
     cpBodyUpdateVelocity(b, *g, d, dt);
@@ -63,4 +69,14 @@ void wrPivotJointInit(cpPivotJoint *joint, cpBody *a,
 void wrGrooveJointInit(cpGrooveJoint *joint, cpBody *a, cpBody *b,
                        cpVect *groove_a, cpVect *groove_b, cpVect *anchr2) {
     cpGrooveJointInit(joint, a, b, *groove_a, *groove_b, *anchr2);
+}
+
+
+// From cpArbiter.h
+void wrContactsSumImpulses(cpContact *contacts, int numContacts, cpVect *ret) {
+    *ret = cpContactsSumImpulses(contacts, numContacts);
+}
+void wrContactsSumImpulsesWithFriction(cpContact *contacts, int numContacts,
+                                       cpVect *ret) {
+    *ret = cpContactsSumImpulsesWithFriction(contacts, numContacts);
 }

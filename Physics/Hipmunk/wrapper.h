@@ -2,6 +2,11 @@
 #define WRAPPER_H
 #include "chipmunk.h"
 
+// New functions
+int wrConstantCallback(cpShape *a, cpShape *b, cpContact *contacts,
+                       int numContacts, cpFloat normal_coef, void *data);
+
+
 // From cpBody.h
 void wrBodyUpdateVelocity(cpBody *b, cpVect *g, cpFloat d, cpFloat dt);
 void wrBodyApplyImpulse(cpBody *b, cpVect *j, cpVect *r);
@@ -32,5 +37,10 @@ void wrPivotJointInit(cpPivotJoint *joint, cpBody *a,
                       cpBody *b, cpVect *pivot);
 void wrGrooveJointInit(cpGrooveJoint *joint, cpBody *a, cpBody *b,
                        cpVect *groove_a, cpVect *groove_b, cpVect *anchr2);
+
+// From cpArbiter.h
+void wrContactsSumImpulses(cpContact *contacts, int numContacts, cpVect *ret);
+void wrContactsSumImpulsesWithFriction(cpContact *contacts, int numContacts,
+                                       cpVect *ret);
 
 #endif

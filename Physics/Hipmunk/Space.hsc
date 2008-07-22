@@ -31,17 +31,23 @@ module Physics.Hipmunk.Space
      -- * Stepping
      step,
 
-     -- * Collision pair functions
+     -- ** Collision pair functions
      -- $callbacks
-     CollisionPairBasic,
-     CollisionPairFull,
-     CollisionPair
+     Callback(..),
+     setDefaultCallback,
+     addCallback,
+     removeCallback,
+
+     -- ** Contacts
+     Contact,
+     sumImpulses,
+     sumImpulsesWithFriction,
     )
     where
 
-import qualified Data.Array.Storable as A
-import qualified Data.Map as M
+import Data.Array.Storable
 import Data.IORef
+import qualified Data.Map as M
 import Foreign hiding (new)
 #include "wrapper.h"
 
@@ -139,8 +145,8 @@ spaceAddHelper get add toShape =
         let new  = get new_c
             key  = unsafeForeignPtrToPtr $ castForeignPtr new
             val  = case toShape new_c of
-                     Just shape -> Right Shape
-                     Nothing    -> Left castForeignPtr new
+                     Just shape -> Right shape
+                     Nothing    -> Left (castForeignPtr new)
         in withForeignPtr sp $ \sp_ptr ->
            withForeignPtr new $ \new_ptr -> do
              add sp_ptr new_ptr
@@ -326,7 +332,7 @@ foreign import ccall {- !!! -} safe {- !!! -}
 --   The callbacks themselves may execute arbitrary operations
 --   with a simple exception: /callbacks cannot add or remove
 --   entities from the space/. You can of course create a queue
---   of add/remove actions and then process it after 'step'
+--   of add\/remove actions and then process it after 'step'
 --   returns.
 --
 --   As for the events that trigger collision pair functions,
@@ -338,48 +344,217 @@ foreign import ccall {- !!! -} safe {- !!! -}
 --   (i.e. all collisions are treated).
 
 
--- | A 'CollisionPairBasic' is a callback that given the two
---   shapes, returns @False@ iff the collision is to be ignored.
-type CollisionPairBasic = Shape -> Shape -> IO Bool
-
--- | A 'CollisionPairFull' is similar to 'CollisionPairBasic',
---   however also receives as parameter an array with contact
---   point information. A CpFloat XXX.... See XXX for more info.
-type CollisionPairFull =
-    (A.MArray a Contact IO, XXX)
- => Shape -> Shape -> a Int Contact -> CpFloat -> IO Bool
-
--- | A 'CollisionPair' function, after all, can be basic or full.
---   If you don't need access to the extra information
---   'CollisionPairFull' provide, then use 'CollisionPairBasic'
---   that has a lower overhead.
-type CollisionPair = Either CollisionPairBasic CollisionPairFull
+-- | A 'Callback' function can be of three types:
+--
+--   * A 'Full' callback has access to all parameters passed
+--     by Chipmunk, but it is common not to need all of them.
+--     The two colliding 'Shape's are passed as arguments with
+--     a 'Contact' array and a normal coefficient (this coefficient
+--     should be multiplied to the contacts' normals as
+--     Chipmunk may have reversed the argument order). See 'Contact'
+--     for more information.
+--
+--   * A 'Basic' callback can't access the 'Contact' information,
+--     but incurs a lower overhead per call.
+--
+--   * A 'Constant' callback always accepts or reject the collision.
+--     For example, a @Constant False@ will never accept any
+--     collision.
+--
+--   Although 'Basic' and 'Constant' can be implemented
+--   in terms of 'Full', they're optimized to incur less overhead.
+--   So try to use the simplest callback type
+--   (e.g. @Constant False@ instead of @Basic (\_ _ -> return False)@).
+data Callback = Full (Shape -> Shape -> StorableArray Int Contact
+                      -> CpFloat -> IO Bool)
+              | Basic (Shape -> Shape -> IO Bool)
+              | Constant !Bool
 
 
 -- | Internal. Type of callback used by Chipmunk.
 type ChipmunkCB = ShapePtr -> ShapePtr -> ContactPtr -> #{type int}
                 -> CpFloat -> Ptr () -> IO Int
+type ChipmunkCBPtr = FunPtr ChipmunkCB
 
 
--- | Internal. Constructs a 'ChipmunkCB' from a 'CollisionPair'.
-makeChipmunkCB :: Space -> CollisionPair -> ChipmunkCB
-makeChipmunkCB space (Left basic) =
-  \ptr1 ptr2 _ _ _ -> do
-    (shape1, shape2) <- retriveShape space (ptr1, ptr2)
+-- | Internal. Constructs a 'ChipmunkCB' from a 'Callback',
+--   returning also the contents of the @data@ pointer.
+adaptChipmunkCB :: Space -> Callback
+                -> IO (ChipmunkCBPtr, Ptr (), Maybe (FunPtr ()))
+adaptChipmunkCB _ (Constant bool) =
+  let data_ = intPtrToPtr (if bool then 1 else 0)
+  in return (wrConstantCallback, data_, Nothing)
+adaptChipmunkCB spce (Basic basic) = makeChipmunkCB' $
+  \ptr1 ptr2 _ _ _ _ -> do
+    (shape1, shape2) <- retriveShape spce (ptr1, ptr2)
     okay <- basic shape1 shape2
     return (if okay then 1 else 0)
-makeChipmunkCB space (Right full) =
-  \ptr1 ptr2 cont_ptr cont_num normal_coef -> do
-    (shape1, shape2) <- retriveShape space (ptr1, ptr2)
-    array <- XXX cont_ptr cont_num
+adaptChipmunkCB spce (Full full) = makeChipmunkCB' $
+  \ptr1 ptr2 cont_ptr cont_num normal_coef _ -> do
+    (shape1, shape2) <- retriveShape spce (ptr1, ptr2)
+
+    -- Wrap the pointer in an array. Note that the memory
+    -- is managed by Chipmunk, so we don't have finalizers.
+    cont_fptr <- newForeignPtr_ cont_ptr
+    let bounds = (0, fromIntegral $ cont_num-1)
+    array <- unsafeForeignPtrToStorableArray cont_fptr bounds
+
     okay <- full shape1 shape2 array normal_coef
     return (if okay then 1 else 0)
 
+makeChipmunkCB' :: ChipmunkCB
+                -> IO (ChipmunkCBPtr, Ptr (), Maybe (FunPtr ()))
+makeChipmunkCB' f = do
+  f' <- makeChipmunkCB f
+  return (f', nullPtr, Just $ castFunPtr f')
+
+foreign import ccall "wrapper"
+    makeChipmunkCB :: ChipmunkCB -> IO ChipmunkCBPtr
+
+foreign import ccall unsafe "wrapper.h &wrConstantCallback"
+    wrConstantCallback :: ChipmunkCBPtr
 
 -- | Internal. Retrive a 'Shape' from a 'ShapePtr' and a 'Space'.
 retriveShape :: Space -> (ShapePtr, ShapePtr) -> IO (Shape, Shape)
 retriveShape (P _ entities _) (ptr1, ptr2) = do
   ent <- readIORef entities
-  shape1 <- lookup (castPtr ptr1) ent
-  shape2 <- lookup (castPtr ptr2) ent
+  Right shape1 <- M.lookup (castPtr ptr1) ent
+  Right shape2 <- M.lookup (castPtr ptr2) ent
   return (shape1, shape2)
+
+
+-- | Defines a new default collision pair function.
+--   This callback is called whenever two shapes @a@
+--   and @b@ collide such that no other collision
+--   pair function was defined to @a@'s and @b@'s
+--   collision types. The default is @Constant True@.
+setDefaultCallback :: Space -> Callback -> IO ()
+setDefaultCallback spce@(P sp _ callbacks) func = do
+  -- Find out whats our new function details
+  -- (NULL for default means @Constant True@, optimize it)
+  (cb,data_,hask) <-
+      case func of
+        Constant True -> return (nullFunPtr, nullPtr, Nothing)
+        _             -> adaptChipmunkCB spce func
+
+  -- Free the previous one
+  (def,cbs) <- readIORef callbacks
+  case def of
+    Nothing  -> return ()
+    Just ptr -> freeHaskellFunPtr ptr
+
+  -- Define the new
+  writeIORef callbacks (hask,cbs)
+  withForeignPtr sp $ \sp_ptr -> do
+    cpSpaceSetDefaultCollisionPairFunc sp_ptr cb data_
+
+foreign import ccall unsafe "wrapper.h"
+    cpSpaceSetDefaultCollisionPairFunc
+        :: SpacePtr -> ChipmunkCBPtr -> Ptr () -> IO ()
+
+
+-- | @addCallback sp (cta,ctb) f@ defines @f@ as the callback
+--   to be called whenever a collision occurs between
+--   a shape of collision type @cta@ and another of
+--   collision type @ctb@ (and vice versa). Any other callback
+--   already registered to handle @(cta,ctb)@ will be removed.
+--
+--   Note that you should /not/ add callbacks to both
+--   combinations of @(cta,ctb)@ and @(ctb,cta)@. A good rule
+--   of thumb is to always use @cta <= ctb@, although this
+--   is not necessary.
+addCallback :: Space -> (CollisionType, CollisionType) -> Callback -> IO ()
+addCallback spce@(P sp _ callbacks) (cta,ctb) func = do
+  -- Find out whats our new function details
+  -- (NULL for a specific means @Constant False@, optimize it)
+  (cb,data_,hask) <-
+      case func of
+        Constant False -> return (nullFunPtr, nullPtr, Nothing)
+        _              -> adaptChipmunkCB spce func
+
+  -- Free the previous one, using
+  --   updateLookupWithKey :: Ord k => (k -> a -> Maybe a) -> k
+  --                       -> Map k a -> (Maybe a, Map k a)
+  (def,cbs) <- readIORef callbacks
+  let (old,cbs') = M.updateLookupWithKey (\_ _ -> hask) (cta,ctb) cbs
+  case old of
+    Nothing  -> return ()
+    Just ptr -> freeHaskellFunPtr ptr
+
+  -- Define the new
+  writeIORef callbacks (def,cbs')
+  withForeignPtr sp $ \sp_ptr -> do
+    cpSpaceAddCollisionPairFunc sp_ptr cta ctb cb data_
+
+foreign import ccall unsafe "wrapper.h"
+    cpSpaceAddCollisionPairFunc
+        :: SpacePtr -> CollisionType -> CollisionType
+        -> ChipmunkCBPtr -> Ptr () -> IO ()
+
+-- | @removeCallback sp (cta,ctb)@ removes any callbacks that
+--   were registered to handle @(cta,ctb)@ (see 'addCallback').
+--   Any collisions that would be handled by the removed
+--   callback will be handled by the default one (see
+--   'setDefaultCallback').
+--
+--   Note that you should /always/ use the same order that
+--   was passed to 'addCallback'. In other words, after
+--   @addCallback sp (cta,ctb) f@ you should use
+--   @removeCallback sp (cta,ctb)@, and /never/
+--   @removeCallback sp (ctb,cta)@.
+--
+--   Although pointless, it is harmless to remove a callback
+--   that was not added.
+removeCallback :: Space -> (CollisionType, CollisionType) -> IO ()
+removeCallback (P sp _ callbacks) (cta,ctb) = do
+  -- Free the callback
+  (def,cbs) <- readIORef callbacks
+  let (old,cbs') = M.updateLookupWithKey (\_ _ -> Nothing) (cta,ctb) cbs
+  case old of
+    Nothing  -> return ()
+    Just ptr -> freeHaskellFunPtr ptr
+
+  -- Remove the callback
+  --   Note that we need to call Chipmunk even if old is Nothing
+  --   because wrConstantCallback is not added to cbs. And
+  --   removing what was not added is harmless here.
+  writeIORef callbacks (def,cbs')
+  withForeignPtr sp $ \sp_ptr -> do
+    cpSpaceRemoveCollisionPairFunc sp_ptr cta ctb
+
+foreign import ccall unsafe "wrapper.h"
+    cpSpaceRemoveCollisionPairFunc
+      :: SpacePtr -> CollisionType -> CollisionType -> IO ()
+
+
+-- | Sums the impulses applied to the given contact points.
+--   'sumImpulses' sums only the normal components.
+--   This function should be called only after 'step'
+--   returns.
+sumImpulses :: StorableArray Int Contact -> IO Vector
+sumImpulses = sumImpulsesInternal wrContactsSumImpulses
+
+foreign import ccall unsafe "wrapper.h"
+    wrContactsSumImpulses :: ContactPtr -> #{type int}
+                          -> VectorPtr -> IO ()
+
+-- | Sums the impulses applied to the given contact points.
+--   This function sums both the normal and tangential components
+--   and should be called only after 'step' returns.
+sumImpulsesWithFriction :: StorableArray Int Contact -> IO Vector
+sumImpulsesWithFriction =
+    sumImpulsesInternal wrContactsSumImpulsesWithFriction
+
+foreign import ccall unsafe "wrapper.h"
+    wrContactsSumImpulsesWithFriction :: ContactPtr -> #{type int}
+                                      -> VectorPtr -> IO ()
+
+sumImpulsesInternal :: (ContactPtr -> #{type int} -> VectorPtr -> IO ())
+                    -> StorableArray Int Contact -> IO Vector
+sumImpulsesInternal func sa = do
+  (i1,i2) <- getBounds sa
+  withStorableArray sa $ \sa_ptr ->
+    with 0 $ \vec_ptr -> do
+      func sa_ptr (fromIntegral $ i2-i1) vec_ptr
+      peek vec_ptr
+

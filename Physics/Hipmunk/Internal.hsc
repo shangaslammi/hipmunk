@@ -15,7 +15,10 @@ module Physics.Hipmunk.Internal
 
      SpacePtr,
      Space(..),
-     unP
+     unP,
+
+     Contact(..),
+     ContactPtr
     )
     where
 
@@ -105,13 +108,65 @@ data Space = P !(ForeignPtr Space)
 type SpacePtr  = Ptr Space
 type Entities  = Map (Ptr ()) (Either (ForeignPtr ()) Shape)
 type Callbacks = (Maybe (FunPtr ()), -- Default
-                  Map (#{type int}, #{type int}) (FunPtr ()))
+                  Map (#{type unsigned int}, #{type unsigned int})
+                      (FunPtr ()))
 
 unP :: Space -> ForeignPtr Space
-unP (P sp _ _ _) = sp
+unP (P sp _ _) = sp
 
 instance Eq Space where
-    P s1 _ _ _ == P s2 _ _ _ = s1 == s2
+    P s1 _ _ == P s2 _ _ = s1 == s2
 
 instance Ord Space where
-    P s1 _ _ _ `compare` P s2 _ _ _ = s1 `compare` s2
+    P s1 _ _ `compare` P s2 _ _ = s1 `compare` s2
+
+
+
+-- 'Contact's are an exception to the pattern we've been following
+-- as we're going to use StorableArray with them, so we need
+-- them to be Storable (like Vector).
+
+-- | A 'Contact' contains information about a collision.
+--   It is passed to 'Physics.Hipmunk.Space.Full'.
+--
+--   The fields 'ctJnAcc' and 'ctJtAcc' do not have any meaningfull
+--   value until 'Physics.Hipmunk.Space.step' has returned
+--   (i.e. during a call to a callback this information
+--   contains garbage), and by extension you can only know
+--   the impulse sum after @step@ returns as well.
+--
+--   /IMPORTANT:/ You may maintain a reference to an array
+--   of @Contact@s that was passed to a callback to do any other
+--   processing later. However, /a new call to /@step@/ will
+--   invalidate any of those arrays/! Be careful.
+data Contact = Contact {
+      ctPos    :: Position, -- ^ Position of the collision.
+      ctNormal :: Vector,   -- ^ Normal of the collision.
+      ctDist   :: CpFloat,  -- ^ Penetration distance of the collision.
+      ctJnAcc  :: CpFloat,  -- ^ Normal component of final impulse applied.
+      ctJtAcc  :: CpFloat   -- ^ Tangential component of final impulse applied.
+    }
+               deriving (Eq, Ord, Show)
+
+type ContactPtr = Ptr Contact
+
+instance Storable Contact where
+    sizeOf _    = #{size cpContact}
+    alignment _ = alignment (undefined :: Vector)
+    peek ptr    = do
+      p     <- #{peek cpContact, p} ptr
+      n     <- #{peek cpContact, n} ptr
+      dist  <- #{peek cpContact, dist} ptr
+      jnAcc <- #{peek cpContact, jnAcc} ptr
+      jtAcc <- #{peek cpContact, jtAcc} ptr
+      return $ Contact {ctPos    = p
+                       ,ctNormal = n
+                       ,ctDist   = dist
+                       ,ctJnAcc  = jnAcc
+                       ,ctJtAcc  = jtAcc}
+    poke ptr c = do
+      #{poke cpContact, p} ptr (ctPos c)
+      #{poke cpContact, n} ptr (ctNormal c)
+      #{poke cpContact, dist} ptr (ctDist c)
+      #{poke cpContact, jnAcc} ptr (ctJnAcc c)
+      #{poke cpContact, jtAcc} ptr (ctJtAcc c)
