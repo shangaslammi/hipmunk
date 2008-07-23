@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "wrapper.h"
 
 // New functions
@@ -79,4 +80,16 @@ void wrContactsSumImpulses(cpContact *contacts, int numContacts, cpVect *ret) {
 void wrContactsSumImpulsesWithFriction(cpContact *contacts, int numContacts,
                                        cpVect *ret) {
     *ret = cpContactsSumImpulsesWithFriction(contacts, numContacts);
+}
+
+// From cpSpace.h
+void wrSpaceActiveShapePointQuery(cpSpace *space, cpVect *point, cpSpacePointQueryFunc func) {
+    cpSpaceShapePointQuery(space, *point, func, NULL);
+}
+void wrSpaceStaticShapePointQuery(cpSpace *space, cpVect *point, cpSpacePointQueryFunc func) {
+    cpSpaceStaticShapePointQuery(space, *point, func, NULL);
+}
+void wrSpaceBothShapePointQuery(cpSpace  *space, cpVect *point, cpSpacePointQueryFunc func) {
+    cpSpaceShapePointQuery(space, *point, func, NULL);
+    cpSpaceStaticShapePointQuery(space, *point, func, NULL);
 }

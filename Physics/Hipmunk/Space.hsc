@@ -27,6 +27,11 @@ module Physics.Hipmunk.Space
      resizeStaticHash,
      resizeActiveHash,
      rehashStatic,
+     -- ** Point query
+     -- $point_query
+     QueryType(..),
+     spaceQuery,
+     spaceQueryList,
 
      -- * Stepping
      step,
@@ -45,6 +50,7 @@ module Physics.Hipmunk.Space
     )
     where
 
+import Control.Exception (bracket)
 import Data.Array.Storable
 import Data.IORef
 import qualified Data.Map as M
@@ -255,15 +261,6 @@ getTimeStamp (P sp _ _) =
 
 
 
--- | Rehashes the shapes in the static spatial hash.
---   You only need to call this if you move one of the
---   static shapes.
-rehashStatic :: Space -> IO ()
-rehashStatic (P sp _ _) =
-    withForeignPtr sp cpSpaceRehashStatic
-
-foreign import ccall unsafe "wrapper.h"
-    cpSpaceRehashStatic :: SpacePtr -> IO ()
 
 -- $resizing
 --   @'resizeStaticHash' sp dim count@ resizes the static
@@ -303,6 +300,76 @@ foreign import ccall unsafe "wrapper.h"
     cpSpaceResizeActiveHash :: SpacePtr -> CpFloat
                             -> #{type int} -> IO ()
 
+-- | Rehashes the shapes in the static spatial hash.
+--   You only need to call this if you move one of the
+--   static shapes.
+rehashStatic :: Space -> IO ()
+rehashStatic (P sp _ _) =
+    withForeignPtr sp cpSpaceRehashStatic
+
+foreign import ccall unsafe "wrapper.h"
+    cpSpaceRehashStatic :: SpacePtr -> IO ()
+
+
+
+
+-- $point_query
+--   Point querying uses the spatial hashes to find out
+--   in what shapes a point is contained. It is useful,
+--   for example, to know if a shape was clicked by
+--   the user.
+
+-- | You may query the static hash, the active hash
+--   or both.
+data QueryType = ActiveHash | StaticHash | Both
+
+-- | @spaceQuery sp query pos cb@ will call @cb@ for every
+--   shape that
+--
+--   * Contains point @pos@ (in world's coordinates).
+--
+--   * Is in the hash selected by @query@ (see 'QueryType').
+--
+--   The order in which the callback is called is unspecified.
+--   However it is guaranteed that it will be called once,
+--   and only once, for each of the shapes described above
+--   (and never for those who aren't).
+spaceQuery :: Space -> QueryType -> Position -> (Shape -> IO ()) -> IO ()
+spaceQuery spce@(P sp _ _) query pos callback =
+  withForeignPtr sp $ \sp_ptr ->
+  bracket (makePointQueryFunc cb) freeHaskellFunPtr $ \cb_ptr ->
+  with pos $ \pos_ptr ->
+    func sp_ptr pos_ptr cb_ptr
+ where
+   func = case query of
+            ActiveHash -> wrSpaceActiveShapePointQuery
+            StaticHash -> wrSpaceStaticShapePointQuery
+            Both -> wrSpaceBothShapePointQuery
+   cb shape_ptr _ = retriveShape spce shape_ptr >>= callback
+
+type PointQueryFunc = ShapePtr -> Ptr () -> IO ()
+type PointQueryFuncPtr = FunPtr PointQueryFunc
+foreign import ccall "wrapper"
+    makePointQueryFunc :: PointQueryFunc -> IO PointQueryFuncPtr
+foreign import ccall safe "wrapper.h"
+    wrSpaceActiveShapePointQuery
+        :: SpacePtr -> VectorPtr -> PointQueryFuncPtr -> IO ()
+foreign import ccall safe "wrapper.h"
+    wrSpaceStaticShapePointQuery
+        :: SpacePtr -> VectorPtr -> PointQueryFuncPtr -> IO ()
+foreign import ccall safe "wrapper.h"
+    wrSpaceBothShapePointQuery
+        :: SpacePtr -> VectorPtr -> PointQueryFuncPtr -> IO ()
+
+
+-- | @spaceQueryList sp query pos@ acts like 'spaceQuery' but
+--   returns a list of 'Shape's instead of calling a callback.
+--   This is just a convenience function.
+spaceQueryList :: Space -> QueryType -> Position -> IO [Shape]
+spaceQueryList spce query pos = do
+  var <- newIORef []
+  spaceQuery spce query pos $ modifyIORef var . (:)
+  readIORef var
 
 
 -- | @step sp dt@ will update the space @sp@ for a @dt@ time
@@ -386,12 +453,14 @@ adaptChipmunkCB _ (Constant bool) =
   in return (wrConstantCallback, data_, Nothing)
 adaptChipmunkCB spce (Basic basic) = makeChipmunkCB' $
   \ptr1 ptr2 _ _ _ _ -> do
-    (shape1, shape2) <- retriveShape spce (ptr1, ptr2)
+    shape1 <- retriveShape spce ptr1
+    shape2 <- retriveShape spce ptr2
     okay <- basic shape1 shape2
     return (if okay then 1 else 0)
 adaptChipmunkCB spce (Full full) = makeChipmunkCB' $
   \ptr1 ptr2 cont_ptr cont_num normal_coef _ -> do
-    (shape1, shape2) <- retriveShape spce (ptr1, ptr2)
+    shape1 <- retriveShape spce ptr1
+    shape2 <- retriveShape spce ptr2
 
     -- Wrap the pointer in an array. Note that the memory
     -- is managed by Chipmunk, so we don't have finalizers.
@@ -415,12 +484,11 @@ foreign import ccall unsafe "wrapper.h &wrConstantCallback"
     wrConstantCallback :: ChipmunkCBPtr
 
 -- | Internal. Retrive a 'Shape' from a 'ShapePtr' and a 'Space'.
-retriveShape :: Space -> (ShapePtr, ShapePtr) -> IO (Shape, Shape)
-retriveShape (P _ entities _) (ptr1, ptr2) = do
+retriveShape :: Space -> ShapePtr -> IO Shape
+retriveShape (P _ entities _) ptr = do
   ent <- readIORef entities
-  Right shape1 <- M.lookup (castPtr ptr1) ent
-  Right shape2 <- M.lookup (castPtr ptr2) ent
-  return (shape1, shape2)
+  Right shape <- M.lookup (castPtr ptr) ent
+  return shape
 
 
 -- | Defines a new default collision pair function.

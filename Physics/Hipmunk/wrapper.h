@@ -43,4 +43,9 @@ void wrContactsSumImpulses(cpContact *contacts, int numContacts, cpVect *ret);
 void wrContactsSumImpulsesWithFriction(cpContact *contacts, int numContacts,
                                        cpVect *ret);
 
+// From cpSpace.h
+void wrSpaceActiveShapePointQuery(cpSpace *space, cpVect *point, cpSpacePointQueryFunc func);
+void wrSpaceStaticShapePointQuery(cpSpace *space, cpVect *point, cpSpacePointQueryFunc func);
+void wrSpaceBothShapePointQuery(cpSpace  *space, cpVect *point, cpSpacePointQueryFunc func);
+
 #endif
