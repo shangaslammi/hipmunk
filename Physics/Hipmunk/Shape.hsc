@@ -30,10 +30,20 @@ module Physics.Hipmunk.Shape
      getBody,
      momentForCircle,
      momentForPoly,
-     shapeQuery
+     shapeQuery,
+
+     -- ** For polygons
+     -- $polygon_util
+     isLeft,
+     isClockwise,
+     isConvex,
+     polyReduce,
+     polyCenter,
+     convexHull
     )
     where
 
+import Data.List (foldl', sortBy)
 import Foreign hiding (rotate, new)
 import Foreign.C
 #include "wrapper.h"
@@ -249,7 +259,7 @@ momentForPoly :: CpFloat -> [Position] -> Position -> CpFloat
 momentForPoly m verts off = (m*sum1)/(6*sum2)
   where
     verts' = if off /= 0 then map (+off) verts else verts
-    (sum1,sum2) = calc (zip verts' $ tail $ cycle verts') 0 0
+    (sum1,sum2) = calc (pairs (,) verts') 0 0
 
     calc a b c | a `seq` b `seq` c `seq` False = undefined
     calc []           acc1 acc2 = (acc1, acc2)
@@ -260,6 +270,10 @@ momentForPoly m verts off = (m*sum1)/(6*sum2)
 -- We recoded the C function to avoid FFI, unsafePerformIO
 -- and a bunch of malloc + poke. Is it worth?
 
+-- | Internal. For @l = [x1,x2,...,xn]@, @pairs f l@ is
+--   @[f x1 x2, f x2 x3, ...,f xn x1]@.
+pairs :: (a -> a -> b) -> [a] -> [b]
+pairs f l = zipWith f l (tail $ cycle l)
 
 -- | @shapeQuery shape p@ returns @True@ iff the point in
 --   position @p@ (in world's coordinates) lies within
@@ -273,3 +287,96 @@ shapeQuery (S shape _) p =
 
 foreign import ccall unsafe "wrapper.h"
     wrShapePointQuery :: ShapePtr -> VectorPtr -> IO CInt
+
+
+
+-- $polygon_util
+--   This section is inspired by @pymunk.util@,
+--   a Python module made from <http://code.google.com/p/pymunk/>,
+--   although implementations are quite different.
+--
+--   Also, unless noted otherwise all polygons are
+--   assumed to be simple (i.e. no overlapping edges).
+
+-- | /O(n)/. @isClockwise verts@ is @True@ iff @verts@ form
+--   a clockwise polygon.
+isClockwise :: [Position] -> Bool
+isClockwise = (<= 0) . foldl' (+) 0 . pairs cross
+
+-- | @isLeft (p1,p2) vert@ is
+--
+--    * @LT@ if @vert@ is at the left of the line defined by @(p1,p2)@.
+--
+--    * @EQ@ if @vert@ is at the line @(p1,p2)@.
+--
+--    * @GT@ otherwise.
+isLeft :: (Position, Position) -> Position -> Ordering
+isLeft (p1,p2) vert = compare 0 $ (p1 - vert) `cross` (p2 - vert)
+
+-- | /O(n)/. @isConvex verts@ is @True@ iff @vers@ form a convex
+--   polygon.
+isConvex :: [Position] -> Bool
+isConvex = foldl1 (==) . map (0 <) . filter (0 /=) . pairs cross . pairs (-)
+-- From http://apocalisp.wordpress.com/category/programming/haskell/page/2/
+
+-- | /O(n)/. @polyReduce delta verts@ removes from @verts@ all
+--   points that have less than @delta@ distance
+--   in relation to the one preceding it.
+--
+--   Note that a very small polygon may be completely \"eaten\"
+--   if all its vertices are within a @delta@ radius from the
+--   first.
+polyReduce :: CpFloat -> [Position] -> [Position]
+polyReduce delta = go
+    where
+      go (p1:p2:ps) | len (p2-p1) < delta = go (p1:ps)
+                    | otherwise           = p1 : go (p2:ps)
+      go other = other
+
+-- | /O(n)/. @polyCenter verts@ is the position in the center
+--   of the polygon formed by @verts@.
+polyCenter :: [Position] -> Position
+polyCenter verts = foldl' (+) 0 verts `scale` s
+    where s = recip $ toEnum $ length verts
+
+
+-- | /O(n log n)/. @convexHull verts@ is the convex hull of the
+--   polygon defined by @verts@. The vertices of the convex
+--   hulls are given in clockwise winding. The polygon
+--   doesn't have to be simple.
+--
+--   Implemented using Graham scan, see
+--   <http://cgm.cs.mcgill.ca/~beezer/cs507/3coins.html>.
+convexHull :: [Position] -> [Position]
+convexHull verts =
+  let (p0,ps) = takeMinimum verts
+      (_:p1:points) = p0 : sortBy (isLeft . (,) p0) ps
+
+      -- points is going counterclockwise now.
+      -- In go we use 'hull' with the last added
+      -- vertex as the head, so our result is clockwise.
+
+      -- Remove right turns
+      go hull@(h1:h2:hs) (q1:qs) =
+          case (isLeft (h2,h1) q1, hs) of
+            (LT,_) -> go (q1:hull) qs    -- Left turn
+            (_,[]) -> go (q1:hull) qs    -- Maintain at least 2 points
+            _      -> go (h2:hs) (q1:qs) -- Right turn or straight
+      go hull [] = hull
+      go _ _     = error "Physics.Hipmunk.Shape.convexHull: never get here"
+
+  in go [p1,p0] points
+
+
+-- | Internal. Works like minimum but also returns the
+--   list without it. The order of the list may be changed.
+--   We have @fst (takeMinimum xs) == minimum xs@ and
+--   @sort (uncurry (:) $ takeMinimum xs) == sort xs@
+takeMinimum :: Ord a => [a] -> (a, [a])
+takeMinimum [] = error "Physics.Hipmunk.Shape.takeMinimum: empty list"
+takeMinimum (x:xs) = go x [] xs
+    where
+      go min_ acc (y:ys) | y < min_  = go y (min_:acc) ys
+                         | otherwise = go min_ (y:acc) ys
+      go min_ acc [] = (min_, acc)
+
