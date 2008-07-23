@@ -1,11 +1,10 @@
 module Physics.Hipmunk.Shape
     (-- * Shapes
      Shape,
-     attachCircle,
-     attachSegment,
-     attachPoly,
+     shapeCircle,
+     shapeSegment,
+     shapePoly,
      resetCounter,
-     getBody,
 
      -- * Properties
      CollisionType,
@@ -28,9 +27,10 @@ module Physics.Hipmunk.Shape
      setSurfaceVel,
 
      -- * Utilities
+     getBody,
      momentForCircle,
      momentForPoly,
-     pointQuery
+     shapeQuery
     )
     where
 
@@ -41,15 +41,15 @@ import Foreign.C
 import Physics.Hipmunk.Common
 import Physics.Hipmunk.Internal
 
--- | @attachCircle b off r@ attaches a circle shape to
+-- | @shapeCircle b off r@ attaches a circle shape to
 --   the body @b@ at the offset @off@ from the body's
 --   center of gravity in @b@'s coordinates and with
 --   a radius of @r@.
 --
 --   This is the fastest collision type
 --   and it also rolls smoothly.
-attachCircle :: Body -> Position -> CpFloat -> IO Shape
-attachCircle body@(B b) off r =
+shapeCircle :: Body -> Position -> CpFloat -> IO Shape
+shapeCircle body@(B b) off r =
   withForeignPtr b $ \b_ptr ->
   with off $ \off_ptr ->
   mallocForeignPtrBytes #{size cpCircleShape} >>= \shape ->
@@ -63,15 +63,15 @@ foreign import ccall unsafe "wrapper.h"
 
 
 
--- | @attachSegment b (p1,p2) r@ attaches a line segment
+-- | @shapeSegment b (p1,p2) r@ attaches a line segment
 --   to the body @b@ going from point @p1@ to @p2@ (in
 --   @b@'s coordinates) and having @r@ thickness.
 --
 --   This is meant to be used as a static shape. Although it
 --   can be used with moving bodies, line segments don't
 --   generate collisions with each other.
-attachSegment :: Body -> (Position,Position) -> CpFloat -> IO Shape
-attachSegment body@(B b) (p1,p2) r =
+shapeSegment :: Body -> (Position,Position) -> CpFloat -> IO Shape
+shapeSegment body@(B b) (p1,p2) r =
   withForeignPtr b $ \b_ptr ->
   with p1 $ \p1_ptr ->
   with p2 $ \p2_ptr ->
@@ -84,7 +84,7 @@ foreign import ccall unsafe "wrapper.h"
     wrSegmentShapeInit :: ShapePtr -> BodyPtr -> VectorPtr
                        -> VectorPtr -> CpFloat -> IO ()
 
--- | @attachPoly b verts off@ attaches a polygon shape to
+-- | @shapePoly b verts off@ attaches a polygon shape to
 --   the body @b@. @verts@ contains the list of vertices
 --   and they must define a convex hull with a
 --   counterclockwise winding, and @off@ is the offset from
@@ -94,8 +94,8 @@ foreign import ccall unsafe "wrapper.h"
 --   This is the slowest of all shapes but the most flexible.
 --   Note that if you want a non-convex polygon you may
 --   add several convex polygons to the body.
-attachPoly :: Body -> [Position] -> Position -> IO Shape
-attachPoly body@(B b) verts off =
+shapePoly :: Body -> [Position] -> Position -> IO Shape
+shapePoly body@(B b) verts off =
   withForeignPtr b $ \b_ptr ->
   with off $ \off_ptr ->
   withArrayLen verts $ \verts_len verts_ptr ->
@@ -131,7 +131,7 @@ foreign import ccall unsafe "wrapper.h"
 
 
 -- | @getBody s@ is the body that this shape is associated
---   to. Useful especially in 'Physics.Hipmunk.Space.CollisionPair'.
+--   to. Useful especially in 'Physics.Hipmunk.Space.Callback'.
 getBody :: Shape -> Body
 getBody (S _ b) = b
 
@@ -243,7 +243,7 @@ momentForCircle m (ri,ro) off = (m/2)*(ri*ri + ro*ro) + m*(off `dot` off)
 -- | @momentForPoly m verts off@ is the moment of inertia of a
 --   polygon of @m@ mass, at offset @off@ from the center of
 --   the body and comprised of @verts@ vertices. This is similar
---   to 'attachPoly' (and the same restrictions for the vertices
+--   to 'shapePoly' (and the same restrictions for the vertices
 --   apply as well).
 momentForPoly :: CpFloat -> [Position] -> Position -> CpFloat
 momentForPoly m verts off = (m*sum1)/(6*sum2)
@@ -261,11 +261,11 @@ momentForPoly m verts off = (m*sum1)/(6*sum2)
 -- and a bunch of malloc + poke. Is it worth?
 
 
--- | @pointQuery shape p@ returns @True@ iff the point in
+-- | @shapeQuery shape p@ returns @True@ iff the point in
 --   position @p@ (in world's coordinates) lies within
 --   the shape @shape@.
-pointQuery :: Shape -> Position -> IO Bool
-pointQuery (S shape _) p =
+shapeQuery :: Shape -> Position -> IO Bool
+shapeQuery (S shape _) p =
   withForeignPtr shape $ \shape_ptr ->
   with p $ \p_ptr -> do
     i <- wrShapePointQuery shape_ptr p_ptr

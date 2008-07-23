@@ -140,11 +140,22 @@ instance Ord Space where
 --   processing later. However, /a new call to /@step@/ will
 --   invalidate any of those arrays/! Be careful.
 data Contact = Contact {
-      ctPos    :: Position, -- ^ Position of the collision.
-      ctNormal :: Vector,   -- ^ Normal of the collision.
-      ctDist   :: CpFloat,  -- ^ Penetration distance of the collision.
-      ctJnAcc  :: CpFloat,  -- ^ Normal component of final impulse applied.
-      ctJtAcc  :: CpFloat   -- ^ Tangential component of final impulse applied.
+      ctPos    :: Position,
+      -- ^ Position of the collision in world's coordinates.
+
+      ctNormal :: Vector,
+      -- ^ Normal of the collision.
+
+      ctDist   :: CpFloat,
+      -- ^ Penetration distance of the collision.
+
+      ctJnAcc  :: CpFloat,
+      -- ^ Normal component of final impulse applied.
+      --   (Valid only after @step@ finishes.)
+
+      ctJtAcc  :: CpFloat
+      -- ^ Tangential component of final impulse applied.
+      --   (Valid only after @step@ finishes.)
     }
                deriving (Eq, Ord, Show)
 

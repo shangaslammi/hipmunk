@@ -6,7 +6,7 @@ module Physics.Hipmunk.Space
      Space,
      space,
      spaceFree,
-     SpaceAdd(..),
+     Entity(..),
      StaticShape(..),
 
      -- * Properties
@@ -39,7 +39,7 @@ module Physics.Hipmunk.Space
      removeCallback,
 
      -- ** Contacts
-     Contact,
+     Contact(..),
      sumImpulses,
      sumImpulsesWithFriction,
     )
@@ -128,7 +128,7 @@ spaceFree (P _ entities callbacks) = do
 
 -- | Type class implemented by entities that can be
 --   added to a space.
-class SpaceAdd a where
+class Entity a where
     -- | Add an entity to a 'Space'. Don't add the same
     --   entity twice to a space.
     spaceAdd :: Space -> a -> IO ()
@@ -164,7 +164,7 @@ spaceRemoveHelper get remove =
         withForeignPtr old $ \old_ptr ->
           remove sp_ptr old_ptr
 
-instance SpaceAdd Body where
+instance Entity Body where
     spaceAdd    = spaceAddHelper    unB cpSpaceAddBody (const Nothing)
     spaceRemove = spaceRemoveHelper unB cpSpaceRemoveBody
 foreign import ccall unsafe "wrapper.h"
@@ -172,7 +172,7 @@ foreign import ccall unsafe "wrapper.h"
 foreign import ccall unsafe "wrapper.h"
     cpSpaceRemoveBody :: SpacePtr -> BodyPtr -> IO ()
 
-instance SpaceAdd Shape where
+instance Entity Shape where
     spaceAdd    = spaceAddHelper    unS cpSpaceAddShape Just
     spaceRemove = spaceRemoveHelper unS cpSpaceRemoveShape
 foreign import ccall unsafe "wrapper.h"
@@ -180,7 +180,7 @@ foreign import ccall unsafe "wrapper.h"
 foreign import ccall unsafe "wrapper.h"
     cpSpaceRemoveShape :: SpacePtr -> ShapePtr -> IO ()
 
-instance SpaceAdd Joint where
+instance Entity Joint where
     spaceAdd    = spaceAddHelper    unJ cpSpaceAddJoint (const Nothing)
     spaceRemove = spaceRemoveHelper unJ cpSpaceRemoveJoint
 foreign import ccall unsafe "wrapper.h"
@@ -201,7 +201,7 @@ foreign import ccall unsafe "wrapper.h"
 --   static or vice versa.
 newtype StaticShape = Static {unStatic :: Shape}
 
-instance SpaceAdd StaticShape where
+instance Entity StaticShape where
     spaceAdd    = spaceAddHelper    (unS . unStatic) cpSpaceAddStaticShape (Just . unStatic)
     spaceRemove = spaceRemoveHelper (unS . unStatic) cpSpaceRemoveStaticShape
 foreign import ccall unsafe "wrapper.h"
@@ -311,14 +311,14 @@ foreign import ccall unsafe "wrapper.h"
 --   It is highly recommended to use a fixed @dt@ to increase
 --   the efficiency of contact persistence. Some tips may be
 --   found in <http://www.gaffer.org/game-physics/fix-your-timestep>.
-step :: Space -> CpFloat -> IO ()
+step :: Space -> Time -> IO ()
 step (P sp _ _) dt =
   withForeignPtr sp $ \sp_ptr -> do
     cpSpaceStep sp_ptr dt
 
 -- IMPORTANT! This call can (and probably will) callback into Haskell.
 foreign import ccall {- !!! -} safe {- !!! -}
-    cpSpaceStep :: SpacePtr -> CpFloat -> IO ()
+    cpSpaceStep :: SpacePtr -> Time -> IO ()
 
 
 
