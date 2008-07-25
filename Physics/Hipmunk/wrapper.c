@@ -4,7 +4,7 @@
 // New functions
 int wrConstantCallback(cpShape *a, cpShape *b, cpContact *contacts,
                        int numContacts, cpFloat normal_coef, void *data) {
-    return ((int) data);
+    return (data == 0 ? 0 : 1);
 }
 
 // From cpBody.h
