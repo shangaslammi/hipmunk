@@ -1,5 +1,6 @@
 Cabal-Version: >= 1.2
-Category:      Physics
+Build-Type:    Simple
+Category:      Physics, Game
 Name:          Hipmunk
 Version:       0.1
 Stability:     beta
@@ -74,6 +75,6 @@ Library
     Build-Depends: array, containers
   Extensions:    CPP, ForeignFunctionInterface
   Build-Tools:   hsc2hs
-  GHC-Options:   -O2 -Wall
+  GHC-Options:   -Wall
   CC-Options:    -O3 -ffast-math -std=gnu99
-  LD-Options:    -lm
+  Extra-Libraries: m
