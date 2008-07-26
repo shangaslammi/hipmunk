@@ -13,6 +13,9 @@ module Physics.Hipmunk.Space
      Iterations,
      getIterations,
      setIterations,
+     ElasticIterations,
+     getElasticIterations,
+     setElasticIterations,
      Gravity,
      getGravity,
      setGravity,
@@ -229,6 +232,17 @@ setIterations :: Space -> Iterations -> IO ()
 setIterations (P sp _ _) it =
     withForeignPtr sp $ \sp_ptr -> do
       #{poke cpSpace, iterations} sp_ptr it
+
+-- | The number of elastic iterations to use when solving constraints.
+--   (default is 0).
+type ElasticIterations = #{type int}
+getElasticIterations :: Space -> IO ElasticIterations
+getElasticIterations (P sp _ _) =
+    withForeignPtr sp #{peek cpSpace, elasticIterations}
+setElasticIterations :: Space -> ElasticIterations -> IO ()
+setElasticIterations (P sp _ _) it =
+    withForeignPtr sp $ \sp_ptr -> do
+      #{poke cpSpace, elasticIterations} sp_ptr it
 
 -- | The gravity applied to the system. (default is 0)
 type Gravity = Vector
