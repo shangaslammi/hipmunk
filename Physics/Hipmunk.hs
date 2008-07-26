@@ -1,3 +1,24 @@
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  Physics/Hipmunk/Hipmunk.hs
+-- Copyright   :  (c) Felipe A. Lessa 2008
+-- License     :  MIT (see LICENSE)
+--
+-- Maintainer  :  felipe.lessa@gmail.com
+-- Stability   :  beta
+-- Portability :  portable (needs FFI)
+--
+-- This module re-exports all other Hipmunk modules. It is
+-- meant to be imported qualified such as
+--
+-- @
+-- import qualified Physics.Hipmunk as H
+-- @
+--
+-- however it doesn't clash with the 'Prelude'.
+--
+-----------------------------------------------------------------------------
+
 module Physics.Hipmunk
     (module Physics.Hipmunk.Common,
      module Physics.Hipmunk.Body,

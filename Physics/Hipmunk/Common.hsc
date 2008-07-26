@@ -14,6 +14,18 @@
       chipmunk/cpVect.c
       Physics/Hipmunk/wrapper.c #-}
 
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  Physics/Hipmunk/Common.hsc
+-- Copyright   :  (c) Felipe A. Lessa 2008
+-- License     :  MIT (see LICENSE)
+--
+-- Maintainer  :  felipe.lessa@gmail.com
+-- Stability   :  beta
+-- Portability :  portable (needs FFI)
+--
+-----------------------------------------------------------------------------
+
 module Physics.Hipmunk.Common
     (-- * Initialization
      initChipmunk,
