@@ -1,9 +1,8 @@
 module Physics.Hipmunk.Shape
     (-- * Shapes
      Shape,
-     shapeCircle,
-     shapeSegment,
-     shapePoly,
+     ShapeType(..),
+     shape,
      resetCounter,
 
      -- * Properties
@@ -62,15 +61,36 @@ import Foreign.C
 import Physics.Hipmunk.Common
 import Physics.Hipmunk.Internal
 
--- | @shapeCircle b off r@ attaches a circle shape to
---   the body @b@ at the offset @off@ from the body's
---   center of gravity in @b@'s coordinates and with
---   a radius of @r@.
---
---   This is the fastest collision type
---   and it also rolls smoothly.
-shapeCircle :: Body -> Position -> CpFloat -> IO Shape
-shapeCircle body@(B b) off r =
+-- | There are three types of shapes that can be attached
+--   to bodies:
+data ShapeType =
+    -- | A circle is the fastest collision type. It also
+    --   rolls smoothly.
+    Circle {radius :: !CpFloat}
+
+    -- | A line segment is meant to be used as a static
+    --   shape. (It can be used with moving bodies, however
+    --   two line segments never generate collisions between
+    --   each other.)
+  | LineSegment {start     :: !Position,
+                 end       :: !Position,
+                 thickness :: !CpFloat}
+
+    -- | Polygons are the slowest of all shapes but
+    --   the most flexible. The list of vertices must form
+    --   a convex hull with clockwise winding.
+    --   Note that if you want a non-convex polygon you may
+    --   add several convex polygons to the body.
+  | Polygon {vertices :: ![Position]}
+    deriving (Eq, Ord, Show)
+
+
+-- | @shape b type off@ creates a new shape attached to
+--   body @b@ at offset @off@. Note that you have to
+--   add the shape to a space otherwise it won't generate
+--   collisions.
+shape :: Body -> ShapeType -> Position -> IO Shape
+shape body@(B b) (Circle r) off =
   withForeignPtr b $ \b_ptr ->
   with off $ \off_ptr ->
   mallocForeignPtrBytes #{size cpCircleShape} >>= \shape ->
@@ -78,45 +98,16 @@ shapeCircle body@(B b) off r =
     wrCircleShapeInit shape_ptr b_ptr off_ptr r
     return (S shape body)
 
-foreign import ccall unsafe "wrapper.h"
-    wrCircleShapeInit :: ShapePtr -> BodyPtr -> VectorPtr
-                      -> CpFloat -> IO ()
-
-
-
--- | @shapeSegment b (p1,p2) r@ attaches a line segment
---   to the body @b@ going from point @p1@ to @p2@ (in
---   @b@'s coordinates) and having @r@ thickness.
---
---   This is meant to be used as a static shape. Although it
---   can be used with moving bodies, line segments don't
---   generate collisions with each other.
-shapeSegment :: Body -> (Position,Position) -> CpFloat -> IO Shape
-shapeSegment body@(B b) (p1,p2) r =
+shape body@(B b) (LineSegment p1 p2 r) off =
   withForeignPtr b $ \b_ptr ->
-  with p1 $ \p1_ptr ->
-  with p2 $ \p2_ptr ->
+  with (p1+off) $ \p1off_ptr ->
+  with (p2+off) $ \p2off_ptr ->
   mallocForeignPtrBytes #{size cpSegmentShape} >>= \shape ->
   withForeignPtr shape $ \shape_ptr -> do
-    wrSegmentShapeInit shape_ptr b_ptr p1_ptr p2_ptr r
+    wrSegmentShapeInit shape_ptr b_ptr p1off_ptr p2off_ptr r
     return (S shape body)
 
-foreign import ccall unsafe "wrapper.h"
-    wrSegmentShapeInit :: ShapePtr -> BodyPtr -> VectorPtr
-                       -> VectorPtr -> CpFloat -> IO ()
-
--- | @shapePoly b verts off@ attaches a polygon shape to
---   the body @b@. @verts@ contains the list of vertices
---   and they must define a convex hull with a
---   counterclockwise winding, and @off@ is the offset from
---   the body's center of gravity. All positions should be
---   specified in @b@'s coordinates.
---
---   This is the slowest of all shapes but the most flexible.
---   Note that if you want a non-convex polygon you may
---   add several convex polygons to the body.
-shapePoly :: Body -> [Position] -> Position -> IO Shape
-shapePoly body@(B b) verts off =
+shape body@(B b) (Polygon verts) off =
   withForeignPtr b $ \b_ptr ->
   with off $ \off_ptr ->
   withArrayLen verts $ \verts_len verts_ptr ->
@@ -127,6 +118,12 @@ shapePoly body@(B b) verts off =
     addForeignPtrFinalizer cpShapeDestroy shape
     return (S shape body)
 
+foreign import ccall unsafe "wrapper.h"
+    wrCircleShapeInit :: ShapePtr -> BodyPtr -> VectorPtr
+                      -> CpFloat -> IO ()
+foreign import ccall unsafe "wrapper.h"
+    wrSegmentShapeInit :: ShapePtr -> BodyPtr -> VectorPtr
+                       -> VectorPtr -> CpFloat -> IO ()
 foreign import ccall unsafe "wrapper.h"
     wrPolyShapeInit :: ShapePtr -> BodyPtr -> CInt -> VectorPtr
                     -> VectorPtr -> IO ()
