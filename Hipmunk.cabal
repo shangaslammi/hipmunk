@@ -18,6 +18,22 @@ Description:
       and Haskell bindings to all of its functions.
       .
       Licensed under the MIT license (like Chipmunk itself).
+Extra-Source-Files:
+      chipmunk/chipmunk.h,
+      chipmunk/cpArbiter.h,
+      chipmunk/cpArray.h,
+      chipmunk/cpBB.h,
+      chipmunk/cpBody.h,
+      chipmunk/cpCollision.h,
+      chipmunk/cpHashSet.h,
+      chipmunk/cpJoint.h,
+      chipmunk/cpPolyShape.h,
+      chipmunk/cpShape.h,
+      chipmunk/cpSpace.h,
+      chipmunk/cpSpaceHash.h,
+      chipmunk/cpVect.h,
+      chipmunk/prime.h,
+      Physics/Hipmunk/wrapper.h
 
 Flag small_base
   Description: Choose the new smaller, split-up base package.
