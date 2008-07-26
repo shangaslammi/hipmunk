@@ -7,21 +7,27 @@ module Physics.Hipmunk.Shape
      resetCounter,
 
      -- * Properties
+     -- ** Collision type
      CollisionType,
      getCollisionType,
      setCollisionType,
+     -- ** Group
      Group,
      getGroup,
      setGroup,
+     -- ** Layers
      Layers,
      getLayers,
      setLayers,
+     -- ** Elasticity
      Elasticity,
      getElasticity,
      setElasticity,
+     -- ** Friction
      Friction,
      getFriction,
      setFriction,
+     -- ** Surface velocity
      SurfaceVel,
      getSurfaceVel,
      setSurfaceVel,

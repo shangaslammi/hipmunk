@@ -10,18 +10,23 @@ module Physics.Hipmunk.Space
      StaticShape(..),
 
      -- * Properties
+     -- ** Iterations
      Iterations,
      getIterations,
      setIterations,
+     -- ** Elastic iterations
      ElasticIterations,
      getElasticIterations,
      setElasticIterations,
+     -- ** Gravity
      Gravity,
      getGravity,
      setGravity,
+     -- ** Damping
      Damping,
      getDamping,
      setDamping,
+     -- ** Time stamp
      TimeStamp,
      getTimeStamp,
 

@@ -4,18 +4,41 @@ module Physics.Hipmunk.Body
      body,
 
      -- * Static properties
-     getMass, setMass,
-     getMoment, setMoment,
+     -- ** Basic
+     -- *** Mass
+     Mass,
+     getMass,
+     setMass,
+     -- *** Moment of inertia
+     Moment,
+     getMoment,
+     setMoment,
 
      -- ** Linear components of motion
-     getPosition, setPosition,
-     getVelocity, setVelocity,
-     getForce, setForce,
+     -- *** Position
+     getPosition,
+     setPosition,
+     -- *** Velocity
+     Velocity,
+     getVelocity,
+     setVelocity,
+     -- *** Force
+     Force,
+     getForce,
+     setForce,
 
      -- ** Angular components of motion
-     getAngle, setAngle,
-     getAngVel, setAngVel,
-     getTorque, setTorque,
+     -- *** Angle
+     getAngle,
+     setAngle,
+     -- *** Angular velocity
+     AngVel,
+     getAngVel,
+     setAngVel,
+     -- *** Torque
+     Torque,
+     getTorque,
+     setTorque,
 
      -- * Dynamic properties
      slew,
@@ -54,34 +77,31 @@ foreign import ccall unsafe "wrapper.h"
     cpBodyInit :: BodyPtr -> CpFloat -> CpFloat -> IO ()
 
 
--- | @getMass b@ returns the mass of the body @b@.
-getMass :: Body -> IO CpFloat
+
+type Mass = CpFloat
+
+getMass :: Body -> IO Mass
 getMass (B b) = do
   withForeignPtr b $ \ptr -> do
     #{peek cpBody, m} ptr
 
-
--- | @setMass b m@ redefines the mass of the body @b@ to be @m@.
-setMass :: Body -> CpFloat -> IO ()
+setMass :: Body -> Mass -> IO ()
 setMass (B b) m = do
   withForeignPtr b $ \ptr -> do
     cpBodySetMass ptr m
 
 foreign import ccall unsafe "wrapper.h"
-    cpBodySetMass :: BodyPtr -> CpFloat -> IO ()
+    cpBodySetMass :: BodyPtr -> Mass -> IO ()
 
 
--- | @getMoment b@ returns the moment of inertia
---   of the body @b@.
-getMoment :: Body -> IO CpFloat
+type Moment = CpFloat
+
+getMoment :: Body -> IO Moment
 getMoment (B b) = do
   withForeignPtr b $ \ptr -> do
     #{peek cpBody, i} ptr
 
-
--- | @setMoment b i@ redefines the moment of
---   inertia of the body @b@ to be @i@.
-setMoment :: Body -> CpFloat -> IO ()
+setMoment :: Body -> Moment -> IO ()
 setMoment (B b) i = do
   withForeignPtr b $ \ptr -> do
     cpBodySetMoment ptr i
@@ -90,16 +110,12 @@ foreign import ccall unsafe "wrapper.h"
     cpBodySetMoment :: BodyPtr -> CpFloat -> IO ()
 
 
--- | @getAngle b@ returns the angle of the body @b@
---   (initially zero).
+
 getAngle :: Body -> IO Angle
 getAngle (B b) = do
   withForeignPtr b $ \ptr -> do
     #{peek cpBody, a} ptr
 
-
--- | @setAngle b a@ defines the angle of the body @b@
---   to be @a@ (in radians).
 setAngle :: Body -> Angle -> IO ()
 setAngle (B b) a = do
   withForeignPtr b $ \ptr -> do
@@ -109,18 +125,13 @@ foreign import ccall unsafe "wrapper.h"
     cpBodySetAngle :: BodyPtr -> CpFloat -> IO ()
 
 
--- | @getPosition b@ returns the current position
---   of the body @b@.
+
 getPosition :: Body -> IO Position
 getPosition (B b) = do
   withForeignPtr b $ \ptr -> do
     #{peek cpBody, p} ptr
 
-
--- | @setPosition b pos@ defines the position of the
---   body @b@ to be @pos@.
---
---   Note that using this function to change the position
+-- | Note that using this function to change the position
 --   on every step is not recommended as it may leave
 --   the velocity out of sync.
 setPosition :: Body -> Position -> IO ()
@@ -129,65 +140,54 @@ setPosition (B b) pos = do
     #{poke cpBody, p} ptr pos
 
 
--- | @getVelocity b@ returns the current velocity of
---   the body @b@.
-getVelocity :: Body -> IO Vector
+type Velocity = Vector
+
+getVelocity :: Body -> IO Velocity
 getVelocity (B b) = do
   withForeignPtr b $ \ptr -> do
     #{peek cpBody, v} ptr
 
-
--- | @setVelocity b v@ defines the velocity of the
---   body @b@ to be @v@.
-setVelocity :: Body -> Vector -> IO ()
+setVelocity :: Body -> Velocity -> IO ()
 setVelocity (B b) v = do
   withForeignPtr b $ \ptr -> do
     #{poke cpBody, v} ptr v
 
 
--- | @getForce b@ returns the current force being applied
---   to the body @b@.
-getForce :: Body -> IO Vector
+
+type Force = Vector
+
+getForce :: Body -> IO Force
 getForce (B b) = do
   withForeignPtr b $ \ptr -> do
     #{peek cpBody, f} ptr
 
-
--- | @setForce b f@ defines @f@ as the force to be
---   applied to the body @b@.
-setForce :: Body -> Vector -> IO ()
+setForce :: Body -> Force -> IO ()
 setForce (B b) f = do
   withForeignPtr b $ \ptr -> do
     #{poke cpBody, f} ptr f
 
 
--- | @getAngVel b@ returns the current angular velocity
---   of the body @b@.
-getAngVel :: Body -> IO CpFloat
+type AngVel = CpFloat
+
+getAngVel :: Body -> IO AngVel
 getAngVel (B b) = do
   withForeignPtr b $ \ptr -> do
     #{peek cpBody, w} ptr
 
-
--- | @setAngVel b w@ defines the angular velocity of
---   the body @b@ to be @w@.
-setAngVel :: Body -> CpFloat -> IO ()
+setAngVel :: Body -> AngVel -> IO ()
 setAngVel (B b) w = do
   withForeignPtr b $ \ptr -> do
     #{poke cpBody, w} ptr w
 
 
--- | @getTorque b@ returns the current torque being
---   applied to the body @b@.
-getTorque :: Body -> IO CpFloat
+type Torque = CpFloat
+
+getTorque :: Body -> IO Torque
 getTorque (B b) = do
   withForeignPtr b $ \ptr -> do
     #{peek cpBody, t} ptr
 
-
--- | @setTorque b t@ defines the torque of the body @b@
---   to be @t@.
-setTorque :: Body -> CpFloat -> IO ()
+setTorque :: Body -> Torque -> IO ()
 setTorque (B b) t = do
   withForeignPtr b $ \ptr -> do
     #{poke cpBody, t} ptr t
