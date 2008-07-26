@@ -4,8 +4,8 @@ module Physics.Hipmunk.Space
 
      -- * Creating spaces and adding entities
      Space,
-     space,
-     spaceFree,
+     newSpace,
+     freeSpace,
      Entity(..),
      StaticShape(..),
 
@@ -102,12 +102,11 @@ import Physics.Hipmunk.Shape
 
 
 -- | Creates a new, empty space.
---
 --   Some of the memory resources associated with the space
---   must be manually freed through 'spaceFree' when the
+--   must be manually freed through 'freeSpace' when the
 --   'Space' is no longer necessary.
-space :: IO Space
-space =
+newSpace :: IO Space
+newSpace =
   mallocForeignPtrBytes #{size cpSpace} >>= \sp ->
   withForeignPtr sp $ \sp_ptr -> do
     cpSpaceInit sp_ptr
@@ -122,17 +121,17 @@ foreign import ccall unsafe "wrapper.h &cpSpaceDestroy"
     cpSpaceDestroy :: FunPtr (SpacePtr -> IO ())
 
 
--- | @spaceFree sp@ frees some memory resources that can't
+-- | @freeSpace sp@ frees some memory resources that can't
 --   be automatically deallocated in a portable way.
 --   The space @sp@ then becomes invalid and should
 --   not be used (passing @sp@ to any other function,
---   including 'spaceFree', results in undefined behavior).
-spaceFree :: Space -> IO ()
-spaceFree (P _ entities callbacks) = do
+--   including 'freeSpace', results in undefined behavior).
+freeSpace :: Space -> IO ()
+freeSpace (P _ entities callbacks) = do
   -- The only things we *have* to free are the callbacks,
   -- but we'll release all the IORef contents as well.
   let err :: a
-      err = error "Physics.Hipmunk.Space: spaceFree already called here."
+      err = error "Physics.Hipmunk.Space: freeSpace already called here."
   writeIORef entities err
   (def,cbs) <- readIORef callbacks
   writeIORef callbacks err

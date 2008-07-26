@@ -1,7 +1,7 @@
 module Physics.Hipmunk.Body
     (-- * Creating
      Body,
-     body,
+     newBody,
 
      -- * Static properties
      -- ** Basic
@@ -62,12 +62,12 @@ import Foreign hiding (rotate, new)
 import Physics.Hipmunk.Common
 import Physics.Hipmunk.Internal
 
--- | @body mass inertia@ creates a new 'Body' with
+-- | @newBody mass inertia@ creates a new 'Body' with
 --   the given mass and moment of inertia.
 --
 --   It is recommended to call 'setPosition' afterwards.
-body :: CpFloat -> CpFloat -> IO Body
-body mass inertia = do
+newBody :: CpFloat -> CpFloat -> IO Body
+newBody mass inertia = do
   b <- mallocForeignPtrBytes #{size cpBody}
   withForeignPtr b $ \ptr -> do
     cpBodyInit ptr mass inertia

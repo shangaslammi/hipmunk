@@ -2,7 +2,7 @@ module Physics.Hipmunk.Joint
     (-- * Joints
      Joint,
      JointType(..),
-     joint
+     newJoint
     )
     where
 
@@ -40,11 +40,11 @@ data JointType =
     deriving (Eq, Ord, Show)
 
 
--- | @joint b1 b2 type@ connects the two bodies @b1@ and @b2@
+-- | @newJoint b1 b2 type@ connects the two bodies @b1@ and @b2@
 --   with a joint of the given type. Note that you should
 --   add the 'Joint' to a space.
-joint :: Body -> Body -> JointType -> IO Joint
-joint body1@(B b1) body2@(B b2) (Pin a1 a2) =
+newJoint :: Body -> Body -> JointType -> IO Joint
+newJoint body1@(B b1) body2@(B b2) (Pin a1 a2) =
   withForeignPtr b1 $ \b1_ptr ->
   withForeignPtr b2 $ \b2_ptr ->
   with a1 $ \a1_ptr ->
@@ -54,7 +54,7 @@ joint body1@(B b1) body2@(B b2) (Pin a1 a2) =
     wrPinJointInit joint_ptr b1_ptr b2_ptr a1_ptr a2_ptr
     return (J joint body1 body2)
 
-joint body1@(B b1) body2@(B b2) (Slide a1 a2 mn mx) =
+newJoint body1@(B b1) body2@(B b2) (Slide a1 a2 mn mx) =
   withForeignPtr b1 $ \b1_ptr ->
   withForeignPtr b2 $ \b2_ptr ->
   with a1 $ \a1_ptr ->
@@ -64,7 +64,7 @@ joint body1@(B b1) body2@(B b2) (Slide a1 a2 mn mx) =
     wrSlideJointInit joint_ptr b1_ptr b2_ptr a1_ptr a2_ptr mn mx
     return (J joint body1 body2)
 
-joint body1@(B b1) body2@(B b2) (Pivot pos) =
+newJoint body1@(B b1) body2@(B b2) (Pivot pos) =
   withForeignPtr b1 $ \b1_ptr ->
   withForeignPtr b2 $ \b2_ptr ->
   with pos $ \pos_ptr ->
@@ -73,7 +73,7 @@ joint body1@(B b1) body2@(B b2) (Pivot pos) =
     wrPivotJointInit joint_ptr b1_ptr b2_ptr pos_ptr
     return (J joint body1 body2)
 
-joint body1@(B b1) body2@(B b2) (Groove (g1,g2) anchor) =
+newJoint body1@(B b1) body2@(B b2) (Groove (g1,g2) anchor) =
   withForeignPtr b1 $ \b1_ptr ->
   withForeignPtr b2 $ \b2_ptr ->
   with g1 $ \g1_ptr ->

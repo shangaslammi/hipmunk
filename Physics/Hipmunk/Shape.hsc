@@ -2,7 +2,7 @@ module Physics.Hipmunk.Shape
     (-- * Shapes
      Shape,
      ShapeType(..),
-     shape,
+     newShape,
      resetCounter,
 
      -- * Properties
@@ -85,12 +85,12 @@ data ShapeType =
     deriving (Eq, Ord, Show)
 
 
--- | @shape b type off@ creates a new shape attached to
+-- | @newShape b type off@ creates a new shape attached to
 --   body @b@ at offset @off@. Note that you have to
 --   add the shape to a space otherwise it won't generate
 --   collisions.
-shape :: Body -> ShapeType -> Position -> IO Shape
-shape body@(B b) (Circle r) off =
+newShape :: Body -> ShapeType -> Position -> IO Shape
+newShape body@(B b) (Circle r) off =
   withForeignPtr b $ \b_ptr ->
   with off $ \off_ptr ->
   mallocForeignPtrBytes #{size cpCircleShape} >>= \shape ->
@@ -98,7 +98,7 @@ shape body@(B b) (Circle r) off =
     wrCircleShapeInit shape_ptr b_ptr off_ptr r
     return (S shape body)
 
-shape body@(B b) (LineSegment p1 p2 r) off =
+newShape body@(B b) (LineSegment p1 p2 r) off =
   withForeignPtr b $ \b_ptr ->
   with (p1+off) $ \p1off_ptr ->
   with (p2+off) $ \p2off_ptr ->
@@ -107,7 +107,7 @@ shape body@(B b) (LineSegment p1 p2 r) off =
     wrSegmentShapeInit shape_ptr b_ptr p1off_ptr p2off_ptr r
     return (S shape body)
 
-shape body@(B b) (Polygon verts) off =
+newShape body@(B b) (Polygon verts) off =
   withForeignPtr b $ \b_ptr ->
   with off $ \off_ptr ->
   withArrayLen verts $ \verts_len verts_ptr ->
