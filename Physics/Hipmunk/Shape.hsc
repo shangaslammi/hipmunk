@@ -40,9 +40,14 @@ module Physics.Hipmunk.Shape
 
      -- ** For polygons
      -- $polygon_util
+     Segment,
+     Intersection(..),
+     epsilon,
+     (.==.),
      isLeft,
      isClockwise,
      isConvex,
+     intersects,
      polyReduce,
      polyCenter,
      convexHull
@@ -304,6 +309,19 @@ foreign import ccall unsafe "wrapper.h"
 --   Also, unless noted otherwise all polygons are
 --   assumed to be simple (i.e. no overlapping edges).
 
+-- | The epsilon used in the algorithms below when necessary
+--   to compare floats for \"equality\".
+epsilon :: CpFloat
+epsilon = 1e-25
+
+-- | \"Equality\" under 'epsilon'. That is, @a .==. b@
+--   if @abs (a - b) <= epsilon@.
+(.==.) :: CpFloat -> CpFloat -> Bool
+a .==. b = abs (a - b) <= epsilon
+
+-- | A line segment.
+type Segment = (Position, Position)
+
 -- | /O(n)/. @isClockwise verts@ is @True@ iff @verts@ form
 --   a clockwise polygon.
 isClockwise :: [Position] -> Bool
@@ -324,6 +342,81 @@ isLeft (p1,p2) vert = compare 0 $ (p1 - vert) `cross` (p2 - vert)
 isConvex :: [Position] -> Bool
 isConvex = foldl1 (==) . map (0 <) . filter (0 /=) . pairs cross . pairs (-)
 -- From http://apocalisp.wordpress.com/category/programming/haskell/page/2/
+
+-- | /O(1)/. @intersects seg1 seg2@ is the intersection between
+--   the two segments @seg1@ and @seg2@. See 'Intersection'.
+intersects :: Segment -> Segment -> Intersection
+intersects (a0,a1) (b0,b1) =
+    let u                = a1 - a0
+        v@(Vector vx vy) = b1 - b0
+        w@(Vector wx wy) = a0 - b0
+        d = u `cross` v
+        parallel = d .==. 0
+
+        -- Parallel case
+        collinear = all (.==. 0) [u `cross` w, v `cross` w]
+        a_is_point = u `dot` u .==. 0
+        b_is_point = v `dot` v .==. 0
+        (Vector w2x w2y) = a1 - b0
+        (a_in_b, a_in_b') = if vx .==. 0
+                             then swap (wy/vy, w2y/vy)
+                             else swap (wx/vx, w2x/vx)
+            where swap t@(x,y) | x < y     = t
+                               | otherwise = (y,x)
+
+        -- Non-parallel case
+        sI = v `cross` w / d
+        tI = u `cross` w / d
+
+        -- Auxiliary functions
+        inSegment p (c0,c1)
+            | vertical  = test (gy p) (gy c0, gy c1)
+            | otherwise = test (gx p) (gx c0, gx c1)
+            where
+              vertical = gx c0 .==. gx c1
+              (gx, gy) = (\(Vector x _) -> x, \(Vector _ y) -> y)
+              test q (d0,d1) = any (inside q) [(d0,d1), (d1,d0)]
+        inside n (l,r) = l <= n && n <= r
+
+    in if parallel
+       then case (collinear, a_is_point, b_is_point) of
+             (False, _, _) ->
+                 -- Parallel and non-collinear
+                 IntNowhere
+
+             (_, False, False) ->
+                 -- Both are parallel, collinear segments
+                 case (a_in_b > 1 || a_in_b' < 0,
+                       max a_in_b 0, min a_in_b' 1) of
+                   (True, _, _) -> IntNowhere
+                   (_, i0, i1)
+                       | i0 .==. i1 -> IntPoint p0
+                       | otherwise  -> IntSegmt (p0,p1)
+                       where p0 = b0 + v `scale` i0
+                             p1 = b0 + v `scale` i1
+
+             (_, True, True) ->
+                 -- Both are points
+                 if len (b0-a0) .==. 0
+                 then IntPoint a0 else IntNowhere
+
+             _ ->
+                 -- One is a point, another is a segment
+                 let (point,segment)
+                         | a_is_point = (a0, (b0,b1))
+                         | otherwise  = (b0, (a0,a1))
+                 in if inSegment point segment
+                    then IntPoint point else IntNowhere
+
+       else if all (\x -> inside x (0,1)) [sI, tI]
+            then IntPoint (a0 + u `scale` sI) else IntNowhere
+
+-- | A possible intersection between two segments.
+data Intersection = IntNowhere         -- ^ Don't intercept.
+                  | IntPoint !Position -- ^ Intercept in a point.
+                  | IntSegmt !Segment  -- ^ Share a segment.
+                    deriving (Eq, Ord, Show)
+
 
 -- | /O(n)/. @polyReduce delta verts@ removes from @verts@ all
 --   points that have less than @delta@ distance
