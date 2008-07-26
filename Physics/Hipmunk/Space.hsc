@@ -8,6 +8,9 @@
 -- Stability   :  beta
 -- Portability :  portable (needs FFI)
 --
+-- The space, where the simulation happens and the various entities
+-- interact.
+--
 -----------------------------------------------------------------------------
 
 module Physics.Hipmunk.Space
@@ -271,7 +274,7 @@ setGravity (P sp _ _) g =
       #{poke cpSpace, gravity} sp_ptr g
 
 -- | The amount of viscous damping applied to the system.
---   (default to 1)
+--   (default is 1)
 type Damping = CpFloat
 getDamping :: Space -> IO Damping
 getDamping (P sp _ _) =

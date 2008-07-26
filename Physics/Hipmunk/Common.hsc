@@ -24,6 +24,9 @@
 -- Stability   :  beta
 -- Portability :  portable (needs FFI)
 --
+-- Functionality used by various modules and routines for
+-- initialization and change of global variables.
+--
 -----------------------------------------------------------------------------
 
 module Physics.Hipmunk.Common
@@ -140,7 +143,7 @@ foreign import ccall unsafe "wrapper.h"
 -- $contact_persistence
 --   This variable determines how long contacts should persist.
 --   It should be small as the cached contacts will only be
---   close for a short time. (defaults to 3)
+--   close for a short time. (default is 3)
 
 getContactPersistence :: IO #{type int}
 getContactPersistence = peek cp_contact_persistence
@@ -156,7 +159,7 @@ foreign import ccall unsafe "wrapper.h &cp_contact_persistence"
 --   The collision slop is the amount that shapes are allowed to
 --   penetrate. Setting this to zero will work just fine, but using a
 --   small positive amount will help prevent oscillating
---   contacts. (defaults to 0.1)
+--   contacts. (default is 0.1)
 
 getCollisionSlop :: IO CpFloat
 getCollisionSlop = peek cp_collision_slop
@@ -171,7 +174,7 @@ foreign import ccall unsafe "wrapper.h &cp_collision_slop"
 -- $bias_coef
 --   The amount of penetration to reduce in each step. Values should
 --   range from 0 to 1. Using large values will eliminate penetration in
---   fewer steps, but can cause vibration. (defaults to 0.1)
+--   fewer steps, but can cause vibration. (default is 0.1)
 
 getBiasCoef :: IO CpFloat
 getBiasCoef = peek cp_bias_coef
@@ -186,7 +189,7 @@ foreign import ccall unsafe "wrapper.h &cp_bias_coef"
 -- $joint_bias_coef
 --   Similar to the bias coefficient, but for all joints. In the
 --   future, joints might have their own bias coefficient
---   instead. (defaults to 0.1)
+--   instead. (default is 0.1)
 
 getJointBiasCoef :: IO CpFloat
 getJointBiasCoef = peek cp_joint_bias_coef

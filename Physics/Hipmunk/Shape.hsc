@@ -8,6 +8,9 @@
 -- Stability   :  beta
 -- Portability :  portable (needs FFI)
 --
+-- Shapes used for collisions, their properties and some useful
+-- polygon functions.
+--
 -----------------------------------------------------------------------------
 
 module Physics.Hipmunk.Shape
@@ -148,8 +151,11 @@ getBody :: Shape -> Body
 getBody (S _ b) = b
 
 
--- | The collision type is by collision calback...
---   XXX Improve documentation after writing the rest of the bindings.
+-- | The collision type is used to determine which collision
+--   'Physics.Hipmunk.Space.Callback' will be called. Its
+--   actual value doesn't have a meaning for Chipmunk other
+--   than the correspondence between shapes and the collision
+--   pair functions you add. (default is zero)
 type CollisionType = #{type unsigned int}
 getCollisionType :: Shape -> IO CollisionType
 getCollisionType (S shape _) =
@@ -160,10 +166,10 @@ setCollisionType (S shape _) col =
     #{poke cpShape, collision_type} shape_ptr col
 
 -- | Groups are used to filter collisions between shapes. If
---   the group is zero (default), then it imposes no restriction
+--   the group is zero, then it imposes no restriction
 --   to the collisions. However, if the group is non-zero then
 --   the shape will not collide with other shapes in the same
---   non-zero group.
+--   non-zero group. (default is zero)
 --
 --   This is primarely used to create multi-body, multi-shape
 --   objects such as ragdolls. It may be thought as a lightweight
@@ -179,13 +185,12 @@ setGroup (S shape _) gr =
     #{poke cpShape, group} shape_ptr gr
 
 -- | Layers are similar to groups, but use a bitmask. For a collision
---   to occur, two shapes must have at least one layer in common
---   (in other words, @layer1 .&. layer2@ should be non-zero).
+--   to occur, two shapes must have at least one layer in common.
+--   In other words, @layer1 .&. layer2@ should be non-zero.
+--   (default is @0xFFFF@)
 --
 --   Note that although this type may have more than 32 bits,
 --   for portability you should only rely on the lower 32 bits.
---
---   The default value is @0xFFFF@.
 type Layers = #{type unsigned int}
 getLayers :: Shape -> IO Layers
 getLayers (S shape _) =
@@ -196,12 +201,19 @@ setLayers (S shape _) lay =
     #{poke cpShape, layers} shape_ptr lay
 
 -- | The elasticity of the shape is such that @0.0@ gives no bounce
---   while @1.0@ give a "perfect" bounce. Note that due to
+--   while @1.0@ give a \"perfect\" bounce. Note that due to
 --   inaccuracies using @1.0@ or greater is not recommended.
 --
 --   The amount of elasticity applied during a collision is
 --   calculated by multiplying the elasticity of both shapes.
---   Defaults to zero.
+--   (default is zero)
+--
+--   /IMPORTANT:/ by default no elastic iterations are done
+--   when the space 'Physics.Hipmunk.Space.step's. This means
+--   that all shapes react as they had zero elasticity.
+--   So, if you want some elasticity, remember to call
+--   'Physics.Hipmunk.Space.setElasticIterations' to something
+--   greater than zero, maybe @10@.
 type Elasticity = CpFloat
 getElasticity :: Shape -> IO Elasticity
 getElasticity (S shape _) =
@@ -213,11 +225,12 @@ setElasticity (S shape _) e =
 
 -- | The friction coefficient of the shape according
 --   to Coulumb friction model (i.e. @0.0@ is frictionless,
---   and iron on iron is around @1.0@).
+--   iron on iron is around @1.0@, and it could be greater
+--   then @1.0@).
 --
 --   The amount of friction applied during a collision is
 --   determined by multiplying the friction coefficient
---   of both shapes. Defaults to zero.
+--   of both shapes. (default is zero)
 type Friction = CpFloat
 getFriction :: Shape -> IO Friction
 getFriction (S shape _) =
@@ -230,7 +243,7 @@ setFriction (S shape _) u =
 -- | The surface velocity of the shape. Useful to create
 --   conveyor belts and players that move around. This
 --   value is only used when calculating friction, not
---   collision. Defaults to zero (i.e. @Vector 0 0@).
+--   collision. (default is zero)
 type SurfaceVel = Vector
 getSurfaceVel :: Shape -> IO SurfaceVel
 getSurfaceVel (S shape _) =

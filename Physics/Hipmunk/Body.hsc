@@ -8,6 +8,8 @@
 -- Stability   :  beta
 -- Portability :  portable (needs FFI)
 --
+-- Rigid bodies and their properties.
+--
 -----------------------------------------------------------------------------
 
 module Physics.Hipmunk.Body

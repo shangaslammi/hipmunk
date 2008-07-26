@@ -8,6 +8,8 @@
 -- Stability   :  beta
 -- Portability :  portable (needs FFI)
 --
+-- Joints that constrain bodies.
+--
 -----------------------------------------------------------------------------
 
 module Physics.Hipmunk.Joint
