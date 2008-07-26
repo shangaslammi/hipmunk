@@ -15,7 +15,6 @@ module Physics.Hipmunk.Shape
      Shape,
      ShapeType(..),
      newShape,
-     resetCounter,
 
      -- * Properties
      -- ** Collision type
@@ -141,23 +140,6 @@ foreign import ccall unsafe "wrapper.h"
                     -> VectorPtr -> IO ()
 foreign import ccall unsafe "wrapper.h &cpShapeDestroy"
     cpShapeDestroy :: FunPtr (ShapePtr -> IO ())
-
--- | @resetCounter@ resets the global counter used for creating
---   unique hash identifiers to the shapes.
---
---   This is used to add determinism to a simulation. As the ids
---   created with this counter may affect the order in which the
---   collisions happen, there may be very slight differences
---   in different simulations.
---
---   However, be careful as you should not use shapes created
---   before a call to @resetCounter@ with shapes created after
---   it as they may have the same id.
-resetCounter :: IO ()
-resetCounter = cpResetShapeIdCounter
-
-foreign import ccall unsafe "wrapper.h"
-    cpResetShapeIdCounter :: IO ()
 
 
 -- | @getBody s@ is the body that this shape is associated

@@ -39,6 +39,10 @@ module Physics.Hipmunk.Common
      -- * Global variables
      -- $global_vars
 
+     -- ** Shape counter
+     -- $shape_counter
+     resetShapeCounter,
+
      -- ** Contact persistence
      -- $contact_persistence
      getContactPersistence,
@@ -112,6 +116,26 @@ type Angle = CpFloat
 --   Chipmunk tries to maintein a very few number of global
 --   variables to allow multiple 'Physics.Hipmunk.Space.Space's
 --   to be used simultaneously, however there are some.
+
+-- $shape_counter
+--   The shape counter is a global counter used for creating
+--   unique hash identifiers to the shapes.
+
+-- | @resetShapeCounter@ reset the shape counter to its default value.
+--   This is used to add determinism to a simulation. As the ids
+--   created with this counter may affect the order in which the
+--   collisions happen, there may be very slight differences in
+--   different simulations.
+--
+--   However, be careful as you should not use shapes created
+--   before a call to @resetCounter@ with shapes created after
+--   it as they may have the same id.
+resetShapeCounter :: IO ()
+resetShapeCounter = cpResetShapeIdCounter
+
+foreign import ccall unsafe "wrapper.h"
+    cpResetShapeIdCounter :: IO ()
+
 
 -- $contact_persistence
 --   This variable determines how long contacts should persist.
