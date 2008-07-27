@@ -1,5 +1,6 @@
 Cabal-Version: >= 1.2
 Build-Type:    Simple
+Tested-With:   GHC
 Category:      Physics, Game
 Name:          Hipmunk
 Version:       0.1
