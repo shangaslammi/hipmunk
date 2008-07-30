@@ -178,7 +178,7 @@ spaceAddHelper get add toShape =
         in withForeignPtr sp $ \sp_ptr ->
            withForeignPtr new $ \new_ptr -> do
              add sp_ptr new_ptr
-             modifyIORef entities (M.insert key val)
+             modifyIORef' entities (M.insert key val)
 
 spaceRemoveHelper :: (a -> ForeignPtr b)
                   -> (SpacePtr -> Ptr b -> IO ())
@@ -187,10 +187,18 @@ spaceRemoveHelper get remove =
     \(P sp entities _) old_c -> do
       let old  = get old_c
           key  = unsafeForeignPtrToPtr $ castForeignPtr old
-      modifyIORef entities (M.delete key)
+      modifyIORef' entities (M.delete key)
       withForeignPtr sp $ \sp_ptr ->
         withForeignPtr old $ \old_ptr ->
           remove sp_ptr old_ptr
+
+-- | Strict version of modifyIORef (otherwise the thunks
+--   will keep referencing removed entities).
+modifyIORef' :: IORef a -> (a -> a) -> IO ()
+modifyIORef' var f = do
+  old <- readIORef var
+  let new = f old
+  new `seq` writeIORef var new
 
 instance Entity Body where
     spaceAdd    = spaceAddHelper    unB cpSpaceAddBody (const Nothing)
