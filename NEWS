@@ -1,0 +1,9 @@
+Version 0.1.1
+=============
+ - Fix a subtle bug within Space that would keep some ForeignPtr's
+   alive longer than needed, thus leaking memory.
+
+
+Version 0.1
+===========
+ - Initial public release.
