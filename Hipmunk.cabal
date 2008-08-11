@@ -21,6 +21,7 @@ Description:
       .
       Licensed under the MIT license (like Chipmunk itself).
 Extra-Source-Files:
+      NEWS,
       chipmunk/chipmunk.h,
       chipmunk/cpArbiter.h,
       chipmunk/cpArray.h,
