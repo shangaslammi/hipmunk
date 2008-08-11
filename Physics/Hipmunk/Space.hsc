@@ -5,7 +5,7 @@
 -- License     :  MIT (see LICENSE)
 --
 -- Maintainer  :  felipe.lessa@gmail.com
--- Stability   :  beta
+-- Stability   :  provisional
 -- Portability :  portable (needs FFI)
 --
 -- The space, where the simulation happens and the various entities

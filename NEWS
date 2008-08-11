@@ -1,5 +1,5 @@
-Version 0.1.1
-=============
+Version 0.2
+===========
  - Fix a subtle bug within Space that would keep some ForeignPtr's
    alive longer than needed, thus leaking memory.
 

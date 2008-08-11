@@ -5,7 +5,7 @@
 -- License     :  MIT (see LICENSE)
 --
 -- Maintainer  :  felipe.lessa@gmail.com
--- Stability   :  beta
+-- Stability   :  provisional
 -- Portability :  portable (needs FFI)
 --
 -- This module re-exports all other Hipmunk modules. It is
