@@ -528,7 +528,7 @@ foreign import ccall unsafe "wrapper.h &wrConstantCallback"
 retriveShape :: Space -> ShapePtr -> IO Shape
 retriveShape (P _ entities _) ptr = do
   ent <- readIORef entities
-  Right shape <- M.lookup (castPtr ptr) ent
+  let Just (Right shape) = M.lookup (castPtr ptr) ent
   return shape
 
 

@@ -1,3 +1,8 @@
+Version 0.2.1
+=============
+ - Small fix for GHC 6.10. Thanks Pekka Karjalainen and Creighton Hogg
+   for the reports, and sorry for the delay.
+
 Version 0.2
 ===========
  - Fix a subtle bug within Space that would keep some ForeignPtr's
