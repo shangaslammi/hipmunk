@@ -104,7 +104,7 @@ type CpFloat = #{type cpFloat}
 -- | @infinity@ may be used to create bodies with
 --   an infinite mass.
 infinity :: CpFloat
-infinity = 1e100
+infinity = 1e1000
 
 -- | Type synonym used to hint that the argument or result
 --   represents time.
