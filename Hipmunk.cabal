@@ -3,7 +3,7 @@ Build-Type:    Simple
 Tested-With:   GHC
 Category:      Physics, Game
 Name:          Hipmunk
-Version:       0.2.1
+Version:       0.2.2
 Stability:     provisional
 License:       OtherLicense
 License-File:  LICENSE
@@ -13,9 +13,9 @@ Maintainer:    Felipe A. Lessa <felipe.lessa@gmail.com>
 Synopsis:      A Haskell binding for Chipmunk.
 Description:
       Chipmunk is a fast, simple, portable, 2D physics engine
-      (<http://wiki.slembcke.net/main/published/Chipmunk>).
-      This package contains the Chipmunk rev4 source
-      (from <http://chipmunk-physics.googlecode.com/svn/trunk/>)
+      (<http://wiki.slembcke.net/main/published/Chipmunk>).  This
+      package contains the Chipmunk 4.1.0 source (see
+      <http://www.slembcke.net/forums/viewtopic.php?f=4&t=276>)
       and Haskell bindings to all of its functions. It is
       completely self-contained.
       .

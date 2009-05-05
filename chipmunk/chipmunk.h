@@ -19,11 +19,14 @@
  * SOFTWARE.
  */
 
+#ifndef CHIPMUNK_HEADER
+#define CHIPMUNK_HEADER
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 	
-typedef float cpFloat;
+typedef double cpFloat;
 	
 static inline cpFloat
 cpfmax(cpFloat a, cpFloat b)
@@ -83,4 +86,6 @@ cpFloat cpMomentForPoly(cpFloat m, int numVerts, cpVect *verts, cpVect offset);
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif
