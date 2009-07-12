@@ -46,9 +46,9 @@ type VectorPtr = Ptr Vector
 
 
 
--- | A rigid body representing the physical properties of an object,
---   but without a shape. It may help to think as a particle that
---   is able to rotate.
+-- | A rigid body representing the physical properties of an
+--   object, but without a shape. It may help to think of it as a
+--   particle that is able to rotate.
 newtype Body = B (ForeignPtr Body)
 type BodyPtr = Ptr Body
 
@@ -63,7 +63,7 @@ instance Ord Body where
 
 
 
--- | A collision shape is attached to a @Body@ to define its
+-- | A collision shape is attached to a 'Body' to define its
 --   shape. Multiple shapes may be attached, including
 --   overlapping ones (shapes of a body don't generate collisions
 --   with each other).

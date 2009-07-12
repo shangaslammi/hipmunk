@@ -126,9 +126,9 @@ type Angle = CpFloat
 
 
 -- $global_vars
---   Chipmunk tries to maintein a very few number of global
---   variables to allow multiple 'Physics.Hipmunk.Space.Space's
---   to be used simultaneously, however there are some.
+--   Chipmunk tries to maintain a very few number of global
+--   variables to allow multiple @Space@s to be used
+--   simultaneously, however there are some.
 
 -- $shape_counter
 --   The shape counter is a global counter used for creating
@@ -212,7 +212,7 @@ foreign import ccall unsafe "wrapper.h &cp_constraint_bias_coef"
 
 
 -- | A two-dimensional vector. It is an instance of 'Num'
---   however the operations 'signum' and '(*)' are not
+--   however the operations 'signum' and @(*)@ are not
 --   supported.
 data Vector = Vector !CpFloat !CpFloat
               deriving (Eq, Show, Ord)

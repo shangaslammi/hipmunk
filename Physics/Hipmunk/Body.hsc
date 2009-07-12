@@ -80,7 +80,7 @@ import Physics.Hipmunk.Internal
 --   the given mass and moment of inertia.
 --
 --   It is recommended to call 'setPosition' afterwards.
-newBody :: CpFloat -> CpFloat -> IO Body
+newBody :: Mass -> Moment -> IO Body
 newBody mass inertia = do
   b <- mallocForeignPtrBytes #{size cpBody}
   withForeignPtr b $ \ptr -> do

@@ -260,8 +260,9 @@ setIterations (P sp _ _) it =
     withForeignPtr sp $ \sp_ptr -> do
       #{poke cpSpace, iterations} sp_ptr it
 
--- | The number of elastic iterations to use when solving constraints.
---   (default is 0).
+-- | The number of elastic iterations to use when solving
+--   constraints.  (default is 0, meaning old-style elastic code
+--   will be used, which probably isn't what you want).
 type ElasticIterations = CInt
 getElasticIterations :: Space -> IO ElasticIterations
 getElasticIterations (P sp _ _) =
@@ -312,11 +313,11 @@ getTimeStamp (P sp _ _) =
 --
 --   Chipmunk's performance is highly sensitive to both
 --   parameters, which should be hand-tuned to maximize
---   performance. It is in general recommended to set
---   @dim@ as the average object size and @count@ around
---   10 times the number of objects in the hash. Usually
---   bigger numbers are better to @count@, but only to
---   point. By default dim is @100.0@ and count is @1000@.
+--   performance. It is in general recommended to set @dim@ as
+--   the average object size and @count@ around 10 times the
+--   number of objects in the hash. Usually bigger numbers are
+--   better to @count@, but only to a certain point. By default
+--   dim is @100.0@ and count is @1000@.
 --
 --   Note that in the case of the static hash you may try
 --   larger numbers as the static hash is only rehashed

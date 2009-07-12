@@ -148,16 +148,16 @@ foreign import ccall unsafe "wrapper.h &cpShapeDestroy"
 
 
 -- | @getBody s@ is the body that this shape is associated
---   to. Useful especially in 'Physics.Hipmunk.Space.Callback'.
+--   to. Useful especially in a space callback.
 getBody :: Shape -> Body
 getBody (S _ b) = b
 
 
 -- | The collision type is used to determine which collision
---   'Physics.Hipmunk.Space.Callback' will be called. Its
---   actual value doesn't have a meaning for Chipmunk other
---   than the correspondence between shapes and the collision
---   pair functions you add. (default is zero)
+--   callback will be called. Its actual value doesn't have a
+--   meaning for Chipmunk other than the correspondence between
+--   shapes and the collision pair functions you add. (default is
+--   zero)
 type CollisionType = #{type cpCollisionType}
 getCollisionType :: Shape -> IO CollisionType
 getCollisionType (S shape _) =
@@ -210,12 +210,11 @@ setLayers (S shape _) lay =
 --   calculated by multiplying the elasticity of both shapes.
 --   (default is zero)
 --
---   /IMPORTANT:/ by default no elastic iterations are done
---   when the space 'Physics.Hipmunk.Space.step's. This means
---   that all shapes react as they had zero elasticity.
---   So, if you want some elasticity, remember to call
---   'Physics.Hipmunk.Space.setElasticIterations' to something
---   greater than zero, maybe @10@.
+--   /IMPORTANT:/ by default old-style elastic iterations are
+--   done when the space @step@s, which may result in a
+--   not-so-good simulation.  It may be a good idea to use
+--   @setElasticIterations@ with something greater than zero,
+--   maybe @10@.
 type Elasticity = CpFloat
 getElasticity :: Shape -> IO Elasticity
 getElasticity (S shape _) =
@@ -283,7 +282,7 @@ momentForSegment m p1 p2 =
 -- | @momentForPoly m verts off@ is the moment of inertia of a
 --   polygon of @m@ mass, at offset @off@ from the center of
 --   the body and comprised of @verts@ vertices. This is similar
---   to 'shapePoly' (and the same restrictions for the vertices
+--   to 'Polygon' (and the same restrictions for the vertices
 --   apply as well).
 momentForPoly :: CpFloat -> [Position] -> Position -> CpFloat
 momentForPoly m verts off = (m*sum1)/(6*sum2)
@@ -324,7 +323,7 @@ foreign import ccall unsafe "wrapper.h"
 --   intersects with the shape @shape@, is not of the same group
 --   and share at least one layer.  In that case, @0 <= t <= 1@
 --   indicates that one of the intersections is at point @p1 +
---   (p2 - p1) `scale` t@ with normal @n@.
+--   (p2 - p1) \`scale\` t@ with normal @n@.
 shapeSegmentQuery :: Shape -> Position -> Position -> Layers -> Group
                   -> IO (Maybe (CpFloat, Vector))
 shapeSegmentQuery (S shape _) p1 p2 layers group =

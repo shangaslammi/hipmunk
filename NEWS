@@ -2,7 +2,7 @@ Version 5.0.0
 ================
  - Updated for a prerelease of Chipmunk 5.0 from subversion
    revision 192.  Besides bugfixes this new version brings the
-   long awaited new constraints type, doublinga the number of
+   long awaited new constraints type, doubling the number of
    different joint from four to nine.
 
 Version 0.2.2
