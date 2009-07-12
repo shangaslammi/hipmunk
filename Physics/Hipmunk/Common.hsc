@@ -61,10 +61,10 @@ module Physics.Hipmunk.Common
      getBiasCoef,
      setBiasCoef,
 
-     -- ** Joint bias coefficient
-     -- $joint_bias_coef
-     getJointBiasCoef,
-     setJointBiasCoef,
+     -- ** Constraint bias coefficient
+     -- $constraint_bias_coef
+     getConstraintBiasCoef,
+     setConstraintBiasCoef,
 
      -- * Vectors
      Vector(..),
@@ -186,19 +186,18 @@ foreign import ccall unsafe "wrapper.h &cp_bias_coef"
     cp_bias_coef :: Ptr CpFloat
 
 
--- $joint_bias_coef
---   Similar to the bias coefficient, but for all joints. In the
---   future, joints might have their own bias coefficient
---   instead. (default is 0.1)
+-- $constraint_bias_coef
+--   Similar to the bias coefficient, but sets the default bias
+--   for all constraints. (default is 0.1)
 
-getJointBiasCoef :: IO CpFloat
-getJointBiasCoef = peek cp_joint_bias_coef
+getConstraintBiasCoef :: IO CpFloat
+getConstraintBiasCoef = peek cp_constraint_bias_coef
 
-setJointBiasCoef :: CpFloat -> IO ()
-setJointBiasCoef = poke cp_joint_bias_coef
+setConstraintBiasCoef :: CpFloat -> IO ()
+setConstraintBiasCoef = poke cp_constraint_bias_coef
 
-foreign import ccall unsafe "wrapper.h &cp_joint_bias_coef"
-    cp_joint_bias_coef :: Ptr CpFloat
+foreign import ccall unsafe "wrapper.h &cp_constraint_bias_coef"
+    cp_constraint_bias_coef :: Ptr CpFloat
 
 
 

@@ -307,7 +307,7 @@ foreign import ccall unsafe "wrapper.h"
 --   in body coordinates.
 --
 --   Note: large damping values can be unstable, you should use
---   the damped string constraint instead.
+--   the damped spring constraint instead.
 applyDampedSpring :: (Body,Position) -> (Body,Position) -> CpFloat
                   -> CpFloat -> CpFloat -> Time -> IO ()
 applyDampedSpring (B b1,a1) (B b2, a2) rlen k dmp dt =

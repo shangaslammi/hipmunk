@@ -1,5 +1,6 @@
 #ifndef WRAPPER_H
 #define WRAPPER_H
+#include <stdlib.h>
 #include "chipmunk.h"
 #include "chipmunk_unsafe.h"
 
@@ -23,11 +24,18 @@ int wrShapeSegmentQuery(cpShape*, cpVect*, cpVect*, cpLayers, cpGroup, cpSegment
 // From cpPolyShape.h
 void wrPolyShapeInit(cpPolyShape*, cpBody*, int, cpVect*, cpVect*);
 
-// From cpJoint.h
-void wrPinJointInit(cpPinJoint*, cpBody*, cpBody*, cpVect*, cpVect*);
-void wrSlideJointInit(cpSlideJoint*, cpBody*, cpBody*, cpVect*, cpVect*, cpFloat, cpFloat);
-void wrPivotJointInit(cpPivotJoint*, cpBody*, cpBody*, cpVect*);
-void wrGrooveJointInit(cpGrooveJoint*, cpBody*, cpBody*, cpVect*, cpVect*, cpVect*);
+// From various constraints
+// Note that we change the argument order to allow easy currying on Haskell side.
+void wrPinJointInit(cpVect*, cpVect*, cpPinJoint*, cpBody*, cpBody*);
+void wrSlideJointInit(cpFloat, cpFloat, cpVect*, cpVect*, cpSlideJoint*, cpBody*, cpBody*);
+void wrPivot1JointInit(cpVect*, cpPivotJoint*, cpBody*, cpBody*);
+void wrPivot2JointInit(cpVect*, cpVect*, cpPivotJoint*, cpBody*, cpBody*);
+void wrGrooveJointInit(cpVect*, cpVect*, cpVect*, cpGrooveJoint*, cpBody*, cpBody*);
+void wrGearJointInit(cpFloat, cpFloat, cpGearJoint*, cpBody*, cpBody*);
+void wrDampedSpringInit(cpFloat, cpFloat, cpFloat, cpVect*, cpVect*,cpDampedSpring*, cpBody*, cpBody*);
+void wrDampedRotarySpringInit(cpFloat, cpFloat, cpFloat, cpDampedRotarySpring*, cpBody*, cpBody*);
+void wrRotaryLimitJointInit(cpFloat, cpFloat, cpRotaryLimitJoint*, cpBody*, cpBody*);
+void wrSimpleMotorInit(cpFloat, cpSimpleMotor*, cpBody*, cpBody*);
 
 // From cpArbiter.h
 void wrContactsSumImpulses(cpContact*, int, cpVect*);

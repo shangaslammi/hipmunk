@@ -48,7 +48,7 @@ Library
       Physics.Hipmunk.Common,
       Physics.Hipmunk.Body,
       Physics.Hipmunk.Shape,
-      Physics.Hipmunk.Joint,
+      Physics.Hipmunk.Constraint,
       Physics.Hipmunk.Space,
       Physics.Hipmunk.Unsafe
   Other-Modules:

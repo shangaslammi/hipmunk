@@ -23,7 +23,7 @@ module Physics.Hipmunk
     (module Physics.Hipmunk.Common,
      module Physics.Hipmunk.Body,
      module Physics.Hipmunk.Shape,
-     module Physics.Hipmunk.Joint,
+     module Physics.Hipmunk.Constraint,
      module Physics.Hipmunk.Space
     )
     where
@@ -31,5 +31,5 @@ module Physics.Hipmunk
 import Physics.Hipmunk.Common
 import Physics.Hipmunk.Body
 import Physics.Hipmunk.Shape
-import Physics.Hipmunk.Joint
+import Physics.Hipmunk.Constraint
 import Physics.Hipmunk.Space

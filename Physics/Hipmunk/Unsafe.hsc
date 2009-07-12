@@ -38,21 +38,21 @@ import Physics.Hipmunk.Shape
 --   but it is an error to try to change a circle into a segment
 --   or a polygon.  Note also that these errors /are not
 --   checked/, meaning /they will probably crash Chipmunk/.
-unsafeRedefine :: Body -> ShapeType -> Position -> IO ()
-unsafeRedefine (Shape shape _) (Circle r) off =
+unsafeRedefine :: Shape -> ShapeType -> Position -> IO ()
+unsafeRedefine (S shape _) (Circle r) off =
   withForeignPtr shape $ \shape_ptr ->
   with off $ \off_ptr -> do
     cpCircleShapeSetRadius shape_ptr r
     wrCircleShapeSetOffset shape_ptr off_ptr
 
-unsafeRedefine (Shape shape _) (LineSegment p1 p2 r) off =
+unsafeRedefine (S shape _) (LineSegment p1 p2 r) off =
   withForeignPtr shape $ \shape_ptr ->
   with (p1+off) $ \p1off_ptr ->
   with (p2+off) $ \p2off_ptr -> do
     wrSegmentShapeSetEndpoints shape_ptr p1off_ptr p2off_ptr
     cpSegmentShapeSetRadius shape_ptr r
 
-unsafeRedefine (Shape shape _) (Polygon verts) off =
+unsafeRedefine (S shape _) (Polygon verts) off =
   withForeignPtr shape $ \shape_ptr ->
   with off $ \off_ptr ->
   withArrayLen verts $ \verts_len verts_ptr -> do

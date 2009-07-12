@@ -215,13 +215,13 @@ foreign import ccall unsafe "wrapper.h"
 foreign import ccall unsafe "wrapper.h"
     cpSpaceRemoveShape :: SpacePtr -> ShapePtr -> IO ()
 
-instance Entity Joint where
-    spaceAdd    = spaceAddHelper    unJ cpSpaceAddJoint (const Nothing)
-    spaceRemove = spaceRemoveHelper unJ cpSpaceRemoveJoint
+instance Entity Constraint where
+    spaceAdd    = spaceAddHelper    unC cpSpaceAddConstraint (const Nothing)
+    spaceRemove = spaceRemoveHelper unC cpSpaceRemoveConstraint
 foreign import ccall unsafe "wrapper.h"
-    cpSpaceAddJoint :: SpacePtr -> JointPtr -> IO ()
+    cpSpaceAddConstraint :: SpacePtr -> ConstraintPtr -> IO ()
 foreign import ccall unsafe "wrapper.h"
-    cpSpaceRemoveJoint :: SpacePtr -> JointPtr -> IO ()
+    cpSpaceRemoveConstraint :: SpacePtr -> ConstraintPtr -> IO ()
 
 
 -- | A 'StaticShape' is a 'Shape' container that, when added

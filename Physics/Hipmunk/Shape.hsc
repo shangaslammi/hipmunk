@@ -51,6 +51,7 @@ module Physics.Hipmunk.Shape
      momentForSegment,
      momentForPoly,
      shapePointQuery,
+     shapeSegmentQuery,
 
      -- ** For polygons
      -- $polygon_util
@@ -272,9 +273,9 @@ momentForCircle m (ri,ro) off = (m/2)*(ri*ri + ro*ro) + m*(off `dot` off)
 --   segment of mass @m@ going from point @p1@ to point @p2@.
 momentForSegment :: CpFloat -> Position -> Position -> CpFloat
 momentForSegment m p1 p2 =
-    let length = len (p2 - p1)
+    let len' = len (p2 - p1)
         offset = scale (p1 + p2) (recip 2)
-    in m * length * length / 12  +  m * offset `dot` offset
+    in m * len' * len' / 12  +  m * offset `dot` offset
 -- We recoded the C function to avoid FFI and unsafePerformIO
 -- on this simple function.
 
@@ -325,16 +326,16 @@ foreign import ccall unsafe "wrapper.h"
 --   indicates that one of the intersections is at point @p1 +
 --   (p2 - p1) `scale` t@ with normal @n@.
 shapeSegmentQuery :: Shape -> Position -> Position -> Layers -> Group
-                  -> Maybe (CpFloat, Vector)
+                  -> IO (Maybe (CpFloat, Vector))
 shapeSegmentQuery (S shape _) p1 p2 layers group =
     withForeignPtr shape $ \shape_ptr ->
     with p1 $ \p1_ptr ->
     with p2 $ \p2_ptr ->
     allocaBytes #{size cpSegmentQueryInfo} $ \info_ptr -> do
       i <- wrShapeSegmentQuery shape_ptr p1_ptr p2_ptr layers group info_ptr
-      if (i == 0) (return Nothing) else do
-        t <- #{peek cpSegmentQueryInfo, t}
-        n <- #{peek cpSegmentQueryInfo, n}
+      if (i == 0) then return Nothing else do
+        t <- #{peek cpSegmentQueryInfo, t} info_ptr
+        n <- #{peek cpSegmentQueryInfo, n} info_ptr
         return $ Just (t, n)
 
 foreign import ccall unsafe "wrapper.h"

@@ -21,9 +21,9 @@ module Physics.Hipmunk.Internal
      Shape(..),
      unS,
 
-     JointPtr,
-     Joint(..),
-     unJ,
+     ConstraintPtr,
+     Constraint(..),
+     unC,
 
      SpacePtr,
      Space(..),
@@ -95,24 +95,24 @@ instance Ord Shape where
 
 
 
--- | A joint represents a constrain between two bodies. Don't
---   forget to add the bodies and the joint to the space.
-data Joint = J !(ForeignPtr Joint) !Body !Body
-type JointPtr = Ptr Joint
+-- | Represents a constraint between two bodies. Don't forget to
+--   add the bodies and the constraint itself to the space.
+data Constraint = C !(ForeignPtr Constraint) !Body !Body
+type ConstraintPtr = Ptr Constraint
 
-unJ :: Joint -> ForeignPtr Joint
-unJ (J j _ _) = j
+unC :: Constraint -> ForeignPtr Constraint
+unC (C j _ _) = j
 
-instance Eq Joint where
-    J j1 _ _ == J j2 _ _ = j1 == j2
+instance Eq Constraint where
+    C j1 _ _ == C j2 _ _ = j1 == j2
 
-instance Ord Joint where
-    J j1 _ _ `compare` J j2 _ _ = j1 `compare` j2
+instance Ord Constraint where
+    C j1 _ _ `compare` C j2 _ _ = j1 `compare` j2
 
 
 
 -- | A space is where the simulation really occurs. You add
---   bodies, shapes and joints to a space and then step it
+--   bodies, shapes and constraints to a space and then step it
 --   to update it as whole.
 data Space = P !(ForeignPtr Space)
                !(IORef Entities)   -- Active and static entities
