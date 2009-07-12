@@ -77,6 +77,7 @@ import Data.Array.Storable
 import Data.IORef
 import qualified Data.Map as M
 import Foreign hiding (new)
+import Foreign.C.Types (CInt)
 #include "wrapper.h"
 
 import Physics.Hipmunk.Common
@@ -250,7 +251,7 @@ foreign import ccall unsafe "wrapper.h"
 
 -- | The number of iterations to use when solving constraints.
 --   (default is 10).
-type Iterations = #{type int}
+type Iterations = CInt
 getIterations :: Space -> IO Iterations
 getIterations (P sp _ _) =
     withForeignPtr sp #{peek cpSpace, iterations}
@@ -261,7 +262,7 @@ setIterations (P sp _ _) it =
 
 -- | The number of elastic iterations to use when solving constraints.
 --   (default is 0).
-type ElasticIterations = #{type int}
+type ElasticIterations = CInt
 getElasticIterations :: Space -> IO ElasticIterations
 getElasticIterations (P sp _ _) =
     withForeignPtr sp #{peek cpSpace, elasticIterations}
@@ -293,7 +294,7 @@ setDamping (P sp _ _) dm =
 
 -- | The time stamp of the simulation, increased in 1
 --   every time 'step' is called.
-type TimeStamp = #{type int}
+type TimeStamp = CInt
 getTimeStamp :: Space -> IO TimeStamp
 getTimeStamp (P sp _ _) =
     withForeignPtr sp #{peek cpSpace, stamp}
@@ -322,23 +323,23 @@ getTimeStamp (P sp _ _) =
 --   when requested by 'rehashStatic', however that will
 --   use more memory.
 
-resizeStaticHash :: Space -> CpFloat -> #{type int} -> IO ()
+resizeStaticHash :: Space -> CpFloat -> CInt -> IO ()
 resizeStaticHash (P sp _ _) dim count =
     withForeignPtr sp $ \sp_ptr -> do
       cpSpaceResizeStaticHash sp_ptr dim count
 
 foreign import ccall unsafe "wrapper.h"
     cpSpaceResizeStaticHash :: SpacePtr -> CpFloat
-                            -> #{type int} -> IO ()
+                            -> CInt -> IO ()
 
-resizeActiveHash :: Space -> CpFloat -> #{type int} -> IO ()
+resizeActiveHash :: Space -> CpFloat -> CInt -> IO ()
 resizeActiveHash (P sp _ _) dim count =
   withForeignPtr sp $ \sp_ptr -> do
     cpSpaceResizeActiveHash sp_ptr dim count
 
 foreign import ccall unsafe "wrapper.h"
     cpSpaceResizeActiveHash :: SpacePtr -> CpFloat
-                            -> #{type int} -> IO ()
+                            -> CInt -> IO ()
 
 -- | Rehashes the shapes in the static spatial hash.
 --   You only need to call this if you move one of the
@@ -467,7 +468,7 @@ data Callback = Full (Shape -> Shape -> StorableArray Int Contact
 
 
 -- | Internal. Type of callback used by Chipmunk.
-type ChipmunkCB = ShapePtr -> ShapePtr -> ContactPtr -> #{type int}
+type ChipmunkCB = ShapePtr -> ShapePtr -> ContactPtr -> CInt
                 -> CpFloat -> Ptr () -> IO Int
 type ChipmunkCBPtr = FunPtr ChipmunkCB
 
@@ -631,7 +632,7 @@ sumImpulses :: StorableArray Int Contact -> IO Vector
 sumImpulses = sumImpulsesInternal wrContactsSumImpulses
 
 foreign import ccall unsafe "wrapper.h"
-    wrContactsSumImpulses :: ContactPtr -> #{type int}
+    wrContactsSumImpulses :: ContactPtr -> CInt
                           -> VectorPtr -> IO ()
 
 -- | Sums the impulses applied to the given contact points.
@@ -642,10 +643,10 @@ sumImpulsesWithFriction =
     sumImpulsesInternal wrContactsSumImpulsesWithFriction
 
 foreign import ccall unsafe "wrapper.h"
-    wrContactsSumImpulsesWithFriction :: ContactPtr -> #{type int}
+    wrContactsSumImpulsesWithFriction :: ContactPtr -> CInt
                                       -> VectorPtr -> IO ()
 
-sumImpulsesInternal :: (ContactPtr -> #{type int} -> VectorPtr -> IO ())
+sumImpulsesInternal :: (ContactPtr -> CInt -> VectorPtr -> IO ())
                     -> StorableArray Int Contact -> IO Vector
 sumImpulsesInternal func sa = do
   (i1,i2) <- getBounds sa

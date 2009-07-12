@@ -93,6 +93,7 @@ module Physics.Hipmunk.Common
     where
 
 import Foreign hiding (rotate)
+import Foreign.C.Types (CInt)
 #include "wrapper.h"
 
 error' :: String -> a
@@ -154,14 +155,14 @@ foreign import ccall unsafe "wrapper.h"
 --   It should be small as the cached contacts will only be
 --   close for a short time. (default is 3)
 
-getContactPersistence :: IO #{type int}
+getContactPersistence :: IO CInt
 getContactPersistence = peek cp_contact_persistence
 
-setContactPersistence :: #{type int} -> IO ()
+setContactPersistence :: CInt -> IO ()
 setContactPersistence = poke cp_contact_persistence
 
 foreign import ccall unsafe "wrapper.h &cp_contact_persistence"
-    cp_contact_persistence :: Ptr #{type int}
+    cp_contact_persistence :: Ptr CInt
 
 
 -- $collision_slop

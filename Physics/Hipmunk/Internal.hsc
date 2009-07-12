@@ -120,8 +120,9 @@ data Space = P !(ForeignPtr Space)
 type SpacePtr  = Ptr Space
 type Entities  = Map (Ptr ()) (Either (ForeignPtr ()) Shape)
 type Callbacks = (Maybe (FunPtr ()), -- Default
-                  Map (#{type unsigned int}, #{type unsigned int})
-                      (FunPtr ()))
+                  Map (CollisionType_, CollisionType_) (FunPtr ()))
+type CollisionType_ = #{type cpCollisionType}
+-- Duplicated to avoid bringing the documentation from Shape module.
 
 unP :: Space -> ForeignPtr Space
 unP (P sp _ _) = sp
