@@ -26,7 +26,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Physics/Hipmunk/Common.hsc
--- Copyright   :  (c) Felipe A. Lessa 2008
+-- Copyright   :  (c) 2008-2009 Felipe A. Lessa
 -- License     :  MIT (see LICENSE)
 --
 -- Maintainer  :  felipe.lessa@gmail.com
