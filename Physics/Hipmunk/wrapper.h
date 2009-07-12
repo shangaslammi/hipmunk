@@ -32,7 +32,7 @@ void wrPivot1JointInit(cpVect*, cpPivotJoint*, cpBody*, cpBody*);
 void wrPivot2JointInit(cpVect*, cpVect*, cpPivotJoint*, cpBody*, cpBody*);
 void wrGrooveJointInit(cpVect*, cpVect*, cpVect*, cpGrooveJoint*, cpBody*, cpBody*);
 void wrGearJointInit(cpFloat, cpFloat, cpGearJoint*, cpBody*, cpBody*);
-void wrDampedSpringInit(cpFloat, cpFloat, cpFloat, cpVect*, cpVect*,cpDampedSpring*, cpBody*, cpBody*);
+void wrDampedSpringInit(cpFloat, cpFloat, cpFloat, cpVect*, cpVect*, cpDampedSpring*, cpBody*, cpBody*);
 void wrDampedRotarySpringInit(cpFloat, cpFloat, cpFloat, cpDampedRotarySpring*, cpBody*, cpBody*);
 void wrRotaryLimitJointInit(cpFloat, cpFloat, cpRotaryLimitJoint*, cpBody*, cpBody*);
 void wrSimpleMotorInit(cpFloat, cpSimpleMotor*, cpBody*, cpBody*);
