@@ -238,42 +238,51 @@ instance Storable Vector where
 --   angle (in radians).
 fromAngle :: Angle -> Vector
 fromAngle theta = Vector (cos theta) (sin theta)
+{-# INLINE fromAngle #-}
 
 -- | The length of a vector.
 len :: Vector -> CpFloat
 len (Vector x y) = sqrt $ x*x + y*y
+{-# INLINE len #-}
 
 -- | Normalizes the vector (i.e. divides it by its length).
 normalize :: Vector -> Vector
 normalize v = v `scale` (recip $ len v)
+{-# INLINE normalize #-}
 
 -- | Scales the components of a vector by the same amount.
 scale :: Vector -> CpFloat -> Vector
 scale (Vector x y) s = Vector (x*s) (y*s)
+{-# INLINE scale #-}
 
 -- | @toAngle v@ is the angle that @v@ has
 --   with the vector @Vector 1 0@ (modulo @2*pi@).
 toAngle :: Vector -> Angle
 toAngle (Vector x y) = atan2 y x
+{-# INLINE toAngle #-}
 
 -- | @v1 \`dot\` v2@ computes the familiar dot operation.
 dot :: Vector -> Vector -> CpFloat
 dot (Vector x1 y1) (Vector x2 y2) = x1*x2 + y1*y2
+{-# INLINE dot #-}
 
 -- | @v1 \`cross\` v2@ computes the familiar cross operation.
 cross :: Vector -> Vector -> CpFloat
 cross (Vector x1 y1) (Vector x2 y2) = x1*y2 - y1*x2
+{-# INLINE cross #-}
 
 -- | @perp v@ is a vector of same length as @v@ but perpendicular
 --   to @v@ (i.e. @toAngle (perp v) - toAngle v@ equals @pi\/2@
 --   modulo @2*pi@).
 perp :: Vector -> Vector
 perp (Vector x y) = Vector (-y) x
+{-# INLINE perp #-}
 
 -- | @v1 \`project\` v2@ is the vector projection of @v1@ onto @v2@.
 project :: Vector -> Vector -> Vector
 project v1 v2 = v2 `scale` s
     where s = (v1 `dot` v2) / (v2 `dot` v2)
+{-# INLINE project #-}
 
 -- | @v1 \`rotate\` v2@ uses complex multiplication
 --   to rotate (and scale) @v1@ by @v2@.
@@ -281,6 +290,7 @@ rotate :: Vector -> Vector -> Vector
 rotate (Vector x1 y1) (Vector x2 y2) = Vector x3 y3
     where x3 = x1*x2 - y1*y2
           y3 = x1*y2 + y1*x2
+{-# INLINE rotate #-}
 
 -- | The inverse operation of @rotate@, such that
 --   @unrotate (rotate v1 v2) v2@ equals @v1@.
@@ -288,3 +298,4 @@ unrotate :: Vector -> Vector -> Vector
 unrotate (Vector x1 y1) (Vector x2 y2) = Vector x3 y3
     where x3 = x1*x2 + y1*y2
           y3 = y1*x2 - x1*y2
+{-# INLINE unrotate #-}
