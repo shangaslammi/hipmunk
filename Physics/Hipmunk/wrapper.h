@@ -33,8 +33,6 @@ void wrContactsSumImpulses(cpContact*, int, cpVect*);
 void wrContactsSumImpulsesWithFriction(cpContact*, int, cpVect*);
 
 // From cpSpace.h
-void wrSpaceActiveShapePointQuery(cpSpace*, cpVect*, cpSpacePointQueryFunc);
-void wrSpaceStaticShapePointQuery(cpSpace*, cpVect*, cpSpacePointQueryFunc);
-void wrSpaceBothShapePointQuery  (cpSpace*, cpVect*, cpSpacePointQueryFunc);
+void wrSpacePointQuery(cpSpace*, cpVect*, cpLayers, cpGroup, cpSpacePointQueryFunc);
 
 #endif

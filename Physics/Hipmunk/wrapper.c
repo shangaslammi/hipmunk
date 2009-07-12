@@ -91,13 +91,7 @@ void wrContactsSumImpulsesWithFriction(cpContact *contacts, int numContacts,
 }
 
 // From cpSpace.h
-void wrSpaceActiveShapePointQuery(cpSpace *space, cpVect *point, cpSpacePointQueryFunc func) {
-    cpSpaceShapePointQuery(space, *point, func, NULL);
-}
-void wrSpaceStaticShapePointQuery(cpSpace *space, cpVect *point, cpSpacePointQueryFunc func) {
-    cpSpaceStaticShapePointQuery(space, *point, func, NULL);
-}
-void wrSpaceBothShapePointQuery(cpSpace  *space, cpVect *point, cpSpacePointQueryFunc func) {
-    cpSpaceShapePointQuery(space, *point, func, NULL);
-    cpSpaceStaticShapePointQuery(space, *point, func, NULL);
+void wrSpacePointQuery(cpSpace *space, cpVect *point, cpLayers layers,
+                       cpGroup group, cpSpacePointQueryFunc func) {
+    cpSpacePointQuery(space, *point, layers, group, func, NULL);
 }

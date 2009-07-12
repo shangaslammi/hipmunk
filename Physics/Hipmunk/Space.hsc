@@ -52,7 +52,6 @@ module Physics.Hipmunk.Space
      rehashStatic,
      -- ** Point query
      -- $point_query
-     QueryType(..),
      spaceQuery,
      spaceQueryList,
 
@@ -360,32 +359,26 @@ foreign import ccall unsafe "wrapper.h"
 --   for example, to know if a shape was clicked by
 --   the user.
 
--- | You may query the static hash, the active hash
---   or both.
-data QueryType = ActiveHash | StaticHash | Both
-
--- | @spaceQuery sp query pos cb@ will call @cb@ for every
+-- | @spaceQuery sp pos l g cb@ will call @cb@ for every
 --   shape that
 --
 --   * Contains point @pos@ (in world's coordinates).
 --
---   * Is in the hash selected by @query@ (see 'QueryType').
+--   * Isn't of the same group as @g@.
+--
+--   * Shares at least on layer with @l@.
 --
 --   The order in which the callback is called is unspecified.
 --   However it is guaranteed that it will be called once,
 --   and only once, for each of the shapes described above
 --   (and never for those who aren't).
-spaceQuery :: Space -> QueryType -> Position -> (Shape -> IO ()) -> IO ()
-spaceQuery spce@(P sp _ _) query pos callback =
+spaceQuery :: Space -> Position -> Layers -> Group -> (Shape -> IO ()) -> IO ()
+spaceQuery spce@(P sp _ _) pos layers group callback =
   withForeignPtr sp $ \sp_ptr ->
   bracket (makePointQueryFunc cb) freeHaskellFunPtr $ \cb_ptr ->
   with pos $ \pos_ptr ->
-    func sp_ptr pos_ptr cb_ptr
+    wrSpacePointQuery sp_ptr pos_ptr layers group cb_ptr
  where
-   func = case query of
-            ActiveHash -> wrSpaceActiveShapePointQuery
-            StaticHash -> wrSpaceStaticShapePointQuery
-            Both -> wrSpaceBothShapePointQuery
    cb shape_ptr _ = retriveShape spce shape_ptr >>= callback
 
 type PointQueryFunc = ShapePtr -> Ptr () -> IO ()
@@ -393,23 +386,17 @@ type PointQueryFuncPtr = FunPtr PointQueryFunc
 foreign import ccall "wrapper"
     makePointQueryFunc :: PointQueryFunc -> IO PointQueryFuncPtr
 foreign import ccall safe "wrapper.h"
-    wrSpaceActiveShapePointQuery
-        :: SpacePtr -> VectorPtr -> PointQueryFuncPtr -> IO ()
-foreign import ccall safe "wrapper.h"
-    wrSpaceStaticShapePointQuery
-        :: SpacePtr -> VectorPtr -> PointQueryFuncPtr -> IO ()
-foreign import ccall safe "wrapper.h"
-    wrSpaceBothShapePointQuery
-        :: SpacePtr -> VectorPtr -> PointQueryFuncPtr -> IO ()
+    wrSpacePointQuery :: SpacePtr -> VectorPtr -> Layers -> Group
+                      -> PointQueryFuncPtr -> IO ()
 
 
--- | @spaceQueryList sp query pos@ acts like 'spaceQuery' but
+-- | @spaceQueryList sp pos l g@ acts like 'spaceQuery' but
 --   returns a list of 'Shape's instead of calling a callback.
 --   This is just a convenience function.
-spaceQueryList :: Space -> QueryType -> Position -> IO [Shape]
-spaceQueryList spce query pos = do
+spaceQueryList :: Space -> Position -> Layers -> Group -> IO [Shape]
+spaceQueryList spce pos layers group = do
   var <- newIORef []
-  spaceQuery spce query pos $ modifyIORef var . (:)
+  spaceQuery spce pos layers group $ modifyIORef var . (:)
   readIORef var
 
 
