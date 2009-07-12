@@ -48,6 +48,7 @@ module Physics.Hipmunk.Shape
      -- * Utilities
      getBody,
      momentForCircle,
+     momentForSegment,
      momentForPoly,
      shapeQuery,
 
@@ -256,11 +257,24 @@ setSurfaceVel (S shape _) sv =
 
 
 
+
+
 -- | @momentForCircle m (ri,ro) off@ is the moment of inertia
 --   of a circle of @m@ mass, inner radius of @ri@, outer radius
 --   of @ro@ and at an offset @off@ from the center of the body.
 momentForCircle :: CpFloat -> (CpFloat, CpFloat) -> Position -> CpFloat
 momentForCircle m (ri,ro) off = (m/2)*(ri*ri + ro*ro) + m*(off `dot` off)
+-- We recoded the C function to avoid FFI and unsafePerformIO
+-- on this simple function.
+
+
+-- | @momentForSegment m p1 p2@ is the moment of inertia of a
+--   segment of mass @m@ going from point @p1@ to point @p2@.
+momentForSegment :: CpFloat -> Position -> Position -> CpFloat
+momentForSegment m p1 p2 =
+    let length = len (p2 - p1)
+        offset = scale (p1 + p2) (recip 2)
+    in m * length * length / 12  +  m * offset `dot` offset
 -- We recoded the C function to avoid FFI and unsafePerformIO
 -- on this simple function.
 
