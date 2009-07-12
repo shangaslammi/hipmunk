@@ -50,7 +50,7 @@ module Physics.Hipmunk.Shape
      momentForCircle,
      momentForSegment,
      momentForPoly,
-     shapeQuery,
+     shapePointQuery,
 
      -- ** For polygons
      -- $polygon_util
@@ -157,7 +157,7 @@ getBody (S _ b) = b
 --   actual value doesn't have a meaning for Chipmunk other
 --   than the correspondence between shapes and the collision
 --   pair functions you add. (default is zero)
-type CollisionType = #{type unsigned int}
+type CollisionType = #{type cpCollisionType}
 getCollisionType :: Shape -> IO CollisionType
 getCollisionType (S shape _) =
   withForeignPtr shape #{peek cpShape, collision_type}
@@ -176,7 +176,7 @@ setCollisionType (S shape _) col =
 --   objects such as ragdolls. It may be thought as a lightweight
 --   alternative to creating a callback that filters the
 --   collisions.
-type Group = #{type unsigned int}
+type Group = #{type cpGroup}
 getGroup :: Shape -> IO Group
 getGroup (S shape _) =
   withForeignPtr shape #{peek cpShape, group}
@@ -188,11 +188,11 @@ setGroup (S shape _) gr =
 -- | Layers are similar to groups, but use a bitmask. For a collision
 --   to occur, two shapes must have at least one layer in common.
 --   In other words, @layer1 .&. layer2@ should be non-zero.
---   (default is @0xFFFF@)
+--   (default is @-1@, meaning all bits set)
 --
 --   Note that although this type may have more than 32 bits,
 --   for portability you should only rely on the lower 32 bits.
-type Layers = #{type unsigned int}
+type Layers = #{type cpLayers}
 getLayers :: Shape -> IO Layers
 getLayers (S shape _) =
   withForeignPtr shape #{peek cpShape, layers}
@@ -304,18 +304,42 @@ momentForPoly m verts off = (m*sum1)/(6*sum2)
 pairs :: (a -> a -> b) -> [a] -> [b]
 pairs f l = zipWith f l (tail $ cycle l)
 
--- | @shapeQuery shape p@ returns @True@ iff the point in
---   position @p@ (in world's coordinates) lies within
---   the shape @shape@.
-shapeQuery :: Shape -> Position -> IO Bool
-shapeQuery (S shape _) p =
+-- | @shapePointQuery shape p l g@ returns @True@ iff the point
+--   in position @p@ (in world's coordinates) lies within the
+--   shape @shape@, is not of the same group and share at least
+--   one layer.
+shapePointQuery :: Shape -> Position -> Layers -> Group -> IO Bool
+shapePointQuery (S shape _) p layers group =
   withForeignPtr shape $ \shape_ptr ->
   with p $ \p_ptr -> do
-    i <- wrShapePointQuery shape_ptr p_ptr
+    i <- wrShapePointQuery shape_ptr p_ptr layers group
     return (i /= 0)
 
 foreign import ccall unsafe "wrapper.h"
-    wrShapePointQuery :: ShapePtr -> VectorPtr -> IO CInt
+    wrShapePointQuery :: ShapePtr -> VectorPtr -> Layers -> Group -> IO CInt
+
+-- | @shapeSegmentQuery shape p1 p2 l g@ returns @Just (t,n)@ iff
+--   the segment from @p1@ to @p2@ (in world's coordinates)
+--   intersects with the shape @shape@, is not of the same group
+--   and share at least one layer.  In that case, @0 <= t <= 1@
+--   indicates that one of the intersections is at point @p1 +
+--   (p2 - p1) `scale` t@ with normal @n@.
+shapeSegmentQuery :: Shape -> Position -> Position -> Layers -> Group
+                  -> Maybe (CpFloat, Vector)
+shapeSegmentQuery (S shape _) p1 p2 layers group =
+    withForeignPtr shape $ \shape_ptr ->
+    with p1 $ \p1_ptr ->
+    with p2 $ \p2_ptr ->
+    allocaBytes #{size cpSegmentQueryInfo} $ \info_ptr -> do
+      i <- wrShapeSegmentQuery shape_ptr p1_ptr p2_ptr layers group info_ptr
+      if (i == 0) (return Nothing) else do
+        t <- #{peek cpSegmentQueryInfo, t}
+        n <- #{peek cpSegmentQueryInfo, n}
+        return $ Just (t, n)
+
+foreign import ccall unsafe "wrapper.h"
+    wrShapeSegmentQuery :: ShapePtr -> VectorPtr -> VectorPtr
+                        -> Layers -> Group -> Ptr () -> IO CInt
 
 
 

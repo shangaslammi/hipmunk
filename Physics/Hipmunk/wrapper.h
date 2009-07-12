@@ -3,49 +3,38 @@
 #include "chipmunk.h"
 
 // New functions
-int wrConstantCallback(cpShape *a, cpShape *b, cpContact *contacts,
-                       int numContacts, cpFloat normal_coef, void *data);
-
+int wrConstantCallback(cpShape*, cpShape*, cpContact*, int, cpFloat, void*);
 
 // From cpBody.h
-void wrBodyUpdateVelocity(cpBody *b, cpVect *g, cpFloat d, cpFloat dt);
-void wrBodyApplyImpulse(cpBody *b, cpVect *j, cpVect *r);
-void wrDampedSpring(cpBody *b1, cpBody *b2, cpVect *a1, cpVect *a2,
-                    cpFloat rlen, cpFloat k, cpFloat dmp, cpFloat dt);
-void wrBodyLocal2World(cpBody *b, cpVect *v);
-void wrBodyWorld2Local(cpBody *b, cpVect *v);
-void wrBodyApplyForce(cpBody *b, cpVect *f, cpVect *p);
+void wrBodyUpdateVelocity(cpBody*, cpVect*, cpFloat, cpFloat);
+void wrBodyApplyImpulse(cpBody*, cpVect*, cpVect*);
+void wrDampedSpring(cpBody*, cpBody*, cpVect*, cpVect*, cpFloat, cpFloat, cpFloat, cpFloat);
+void wrBodyLocal2World(cpBody*, cpVect*);
+void wrBodyWorld2Local(cpBody*, cpVect*);
+void wrBodyApplyForce(cpBody*, cpVect*, cpVect*);
 
 // From cpShape.h
-void wrCircleShapeInit(cpCircleShape *circle, cpBody *body,
-                       cpVect *offset, cpFloat radius);
-void wrSegmentShapeInit(cpSegmentShape *seg, cpBody *body,
-                        cpVect *a, cpVect *b, cpFloat r);
-int wrShapePointQuery(cpShape *shape, cpVect *p);
+void wrCircleShapeInit(cpCircleShape*, cpBody*, cpVect*, cpFloat);
+void wrSegmentShapeInit(cpSegmentShape*, cpBody*, cpVect*, cpVect*, cpFloat);
+int wrShapePointQuery(cpShape*, cpVect*, cpLayers, cpGroup);
+int wrShapeSegmentQuery(cpShape*, cpVect*, cpVect*, cpLayers, cpGroup, cpSegmentQueryInfo*);
 
 // From cpPolyShape.h
-void wrPolyShapeInit(cpPolyShape *poly, cpBody *body,
-                     int numVerts, cpVect *verts, cpVect *offset);
+void wrPolyShapeInit(cpPolyShape*, cpBody*, int, cpVect*, cpVect*);
 
 // From cpJoint.h
-void wrPinJointInit(cpPinJoint *joint, cpBody *a, cpBody *b,
-                    cpVect *anchr1, cpVect *anchr2);
-void wrSlideJointInit(cpSlideJoint *joint, cpBody *a, cpBody *b,
-                      cpVect *anchr1, cpVect *anchr2,
-                      cpFloat min, cpFloat max);
-void wrPivotJointInit(cpPivotJoint *joint, cpBody *a,
-                      cpBody *b, cpVect *pivot);
-void wrGrooveJointInit(cpGrooveJoint *joint, cpBody *a, cpBody *b,
-                       cpVect *groove_a, cpVect *groove_b, cpVect *anchr2);
+void wrPinJointInit(cpPinJoint*, cpBody*, cpBody*, cpVect*, cpVect*);
+void wrSlideJointInit(cpSlideJoint*, cpBody*, cpBody*, cpVect*, cpVect*, cpFloat, cpFloat);
+void wrPivotJointInit(cpPivotJoint*, cpBody*, cpBody*, cpVect*);
+void wrGrooveJointInit(cpGrooveJoint*, cpBody*, cpBody*, cpVect*, cpVect*, cpVect*);
 
 // From cpArbiter.h
-void wrContactsSumImpulses(cpContact *contacts, int numContacts, cpVect *ret);
-void wrContactsSumImpulsesWithFriction(cpContact *contacts, int numContacts,
-                                       cpVect *ret);
+void wrContactsSumImpulses(cpContact*, int, cpVect*);
+void wrContactsSumImpulsesWithFriction(cpContact*, int, cpVect*);
 
 // From cpSpace.h
-void wrSpaceActiveShapePointQuery(cpSpace *space, cpVect *point, cpSpacePointQueryFunc func);
-void wrSpaceStaticShapePointQuery(cpSpace *space, cpVect *point, cpSpacePointQueryFunc func);
-void wrSpaceBothShapePointQuery(cpSpace  *space, cpVect *point, cpSpacePointQueryFunc func);
+void wrSpaceActiveShapePointQuery(cpSpace*, cpVect*, cpSpacePointQueryFunc);
+void wrSpaceStaticShapePointQuery(cpSpace*, cpVect*, cpSpacePointQueryFunc);
+void wrSpaceBothShapePointQuery  (cpSpace*, cpVect*, cpSpacePointQueryFunc);
 
 #endif
