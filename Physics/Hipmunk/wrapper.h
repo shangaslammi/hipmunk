@@ -1,6 +1,7 @@
 #ifndef WRAPPER_H
 #define WRAPPER_H
 #include "chipmunk.h"
+#include "chipmunk_unsafe.h"
 
 // New functions
 int wrConstantCallback(cpShape*, cpShape*, cpContact*, int, cpFloat, void*);
@@ -34,5 +35,10 @@ void wrContactsSumImpulsesWithFriction(cpContact*, int, cpVect*);
 
 // From cpSpace.h
 void wrSpacePointQuery(cpSpace*, cpVect*, cpLayers, cpGroup, cpSpacePointQueryFunc);
+
+// From chipmunk_unsafe.h
+void wrCircleShapeSetOffset(cpShape*, cpVect*);
+void wrSegmentShapeSetEndpoints(cpShape*, cpVect*, cpVect*);
+void wrPolyShapeSetVerts(cpShape*, int, cpVect*, cpVect*);
 
 #endif

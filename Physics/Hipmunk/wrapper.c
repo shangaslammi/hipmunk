@@ -95,3 +95,14 @@ void wrSpacePointQuery(cpSpace *space, cpVect *point, cpLayers layers,
                        cpGroup group, cpSpacePointQueryFunc func) {
     cpSpacePointQuery(space, *point, layers, group, func, NULL);
 }
+
+// From chipmunk_unsafe.h
+void wrCircleShapeSetOffset(cpShape *shape, cpVect *offset) {
+    cpCircleShapeSetOffset(shape, *offset);
+}
+void wrSegmentShapeSetEndpoints(cpShape *shape, cpVect *a, cpVect *b) {
+    cpSegmentShapeSetEndpoints(shape, *a, *b);
+}
+void wrPolyShapeSetVerts(cpShape *shape, int numVerts, cpVect *verts, cpVect *offset) {
+    cpPolyShapeSetVerts(shape, numVerts, verts, *offset);
+}
