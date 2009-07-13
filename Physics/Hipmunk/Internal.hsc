@@ -24,6 +24,8 @@ module Physics.Hipmunk.Internal
      ConstraintPtr,
      Constraint(..),
      unC,
+     ConstraintInit,
+     ConstraintType(..),
 
      SpacePtr,
      Space(..),
@@ -97,17 +99,27 @@ instance Ord Shape where
 
 -- | Represents a constraint between two bodies. Don't forget to
 --   add the bodies and the constraint itself to the space.
-data Constraint = C !(ForeignPtr Constraint) !Body !Body
-type ConstraintPtr = Ptr Constraint
+--   The phantom type indicates the type of the constraint.
+data Constraint a = C !(ForeignPtr (Constraint ())) !Body !Body
+type ConstraintPtr = Ptr (Constraint ())
 
-unC :: Constraint -> ForeignPtr Constraint
+unC :: Constraint a -> ForeignPtr (Constraint ())
 unC (C j _ _) = j
 
-instance Eq Constraint where
+instance Eq (Constraint a) where
     C j1 _ _ == C j2 _ _ = j1 == j2
 
-instance Ord Constraint where
+instance Ord (Constraint a) where
     C j1 _ _ `compare` C j2 _ _ = j1 `compare` j2
+
+-- | Type of generic constraint initializar.
+type ConstraintInit = ConstraintPtr -> BodyPtr -> BodyPtr -> IO ()
+
+-- | Class implemented by all constraint types.
+class ConstraintType a where
+  size  :: a -> Int
+  init_ :: a -> ConstraintInit
+  redef :: ConstraintPtr -> Body -> Body -> a -> IO ()
 
 
 

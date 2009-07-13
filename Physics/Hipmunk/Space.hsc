@@ -216,7 +216,7 @@ foreign import ccall unsafe "wrapper.h"
 foreign import ccall unsafe "wrapper.h"
     cpSpaceRemoveShape :: SpacePtr -> ShapePtr -> IO ()
 
-instance Entity Constraint where
+instance Entity (Constraint a) where
     spaceAdd    = spaceAddHelper    unC cpSpaceAddConstraint (const Nothing)
     spaceRemove = spaceRemoveHelper unC cpSpaceRemoveConstraint
 foreign import ccall unsafe "wrapper.h"
