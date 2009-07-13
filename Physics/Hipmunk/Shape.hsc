@@ -47,6 +47,7 @@ module Physics.Hipmunk.Shape
 
      -- * Utilities
      getBody,
+     moment,
      momentForCircle,
      momentForSegment,
      momentForPoly,
@@ -76,6 +77,7 @@ import Foreign.C
 
 import Physics.Hipmunk.Common
 import Physics.Hipmunk.Internal
+import Physics.Hipmunk.Body (Mass, Moment)
 
 -- | There are three types of shapes that can be attached
 --   to bodies:
@@ -258,6 +260,14 @@ setSurfaceVel (S shape _) sv =
 
 
 
+-- | @moment m s off@ is a convenience function that calculates
+--   the moment of inertia for shape @s@ with mass @m@ and at a
+--   offset @off@ of the body's center.  Uses 'momentForCircle',
+--   'momentForSegment' and 'momentForPoly' internally.
+moment :: Mass -> ShapeType -> Position -> Moment
+moment m (Circle r)            off = m*(r*r + (off `dot` off))
+moment m (LineSegment p1 p2 _) off = momentForSegment m (p1+off) (p2+off)
+moment m (Polygon verts)       off = momentForPoly m verts off
 
 -- | @momentForCircle m (ri,ro) off@ is the moment of inertia
 --   of a circle of @m@ mass, inner radius of @ri@, outer radius
