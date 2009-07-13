@@ -25,7 +25,7 @@ Description:
       * Updated for a prerelease of Chipmunk 5.0 from subversion
         revision 192.  Besides bugfixes this new version brings
         the long awaited new constraints type, doubling the
-        number of different joint from four to nine.
+        number of different joints from four to nine.
       .
       * Tighter dependencies following the versioning policies.
       .
@@ -109,7 +109,7 @@ Library
                    array >= 0.1 && < 0.3,
                    containers >= 0.1 && < 0.3
   else
-    Build-Depends: base == 2
+    Build-Depends: base >= 2 && < 3
   Extensions:    CPP, ForeignFunctionInterface
   Build-Tools:   hsc2hs
   GHC-Options:   -Wall
