@@ -16,7 +16,9 @@ Description:
       (<http://wiki.slembcke.net/main/published/Chipmunk>).  This
       package contains a prerelease Chipmunk 5.0 source
       and Haskell bindings to all of its functions. It is
-      completely self-contained.
+      completely self-contained.  Please see
+      <http://hackage.haskell.org/package/HipmunkPlayground>
+      for a demonstration of this library.
       .
       New in version 5.0.0:
       .
@@ -24,6 +26,8 @@ Description:
         revision 192.  Besides bugfixes this new version brings
         the long awaited new constraints type, doubling the
         number of different joint from four to nine.
+      .
+      * Tighter dependencies following the versioning policies.
       .
       Licensed under the MIT license (like Chipmunk itself).
 Extra-Source-Files:
