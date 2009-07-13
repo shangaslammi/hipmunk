@@ -24,6 +24,7 @@ module Physics.Hipmunk.Internal
      ConstraintPtr,
      Constraint(..),
      unC,
+     Unknown(..),
      ConstraintInit,
      ConstraintType(..),
 
@@ -112,6 +113,11 @@ instance Eq (Constraint a) where
 instance Ord (Constraint a) where
     C j1 _ _ `compare` C j2 _ _ = j1 `compare` j2
 
+-- | An unknown constraint \"type\".  Note that this isn't a
+--   'ConstraintType' because you can't create a constraint of
+--   @Unknown@ type.
+data Unknown = Unknown
+
 -- | Type of generic constraint initializar.
 type ConstraintInit = ConstraintPtr -> BodyPtr -> BodyPtr -> IO ()
 
@@ -160,10 +166,10 @@ instance Ord Space where
 --   contains garbage), and by extension you can only know
 --   the impulse sum after @step@ returns as well.
 --
---   /IMPORTANT:/ You may maintain a reference to an array
---   of @Contact@s that was passed to a callback to do any other
---   processing later. However, /a new call to /@step@/ will
---   invalidate any of those arrays/! Be careful.
+--   /IMPORTANT:/ You may maintain a reference to an array of
+--   @Contact@s that was passed to a callback to do any other
+--   processing later. However, /a new call to/ @step@ /will/
+--   /invalidate any of those arrays!/ Be careful.
 data Contact = Contact {
       ctPos    :: Position,
       -- ^ Position of the collision in world's coordinates.

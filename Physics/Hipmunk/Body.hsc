@@ -227,7 +227,7 @@ slew (B b) newpos dt = do
 --
 --   Note that this function only needs to be called if you
 --   are not adding the body to a space.
-updateVelocity :: Body -> Vector -> CpFloat -> Time -> IO ()
+updateVelocity :: Body -> Vector -> Damping -> Time -> IO ()
 updateVelocity (B b) g d dt =
   withForeignPtr b $ \b_ptr ->
   with g $ \g_ptr -> do
@@ -308,8 +308,8 @@ foreign import ccall unsafe "wrapper.h"
 --
 --   Note: large damping values can be unstable, you should use
 --   the damped spring constraint instead.
-applyDampedSpring :: (Body,Position) -> (Body,Position) -> CpFloat
-                  -> CpFloat -> CpFloat -> Time -> IO ()
+applyDampedSpring :: (Body,Position) -> (Body,Position) -> Distance
+                  -> CpFloat -> Damping -> Time -> IO ()
 applyDampedSpring (B b1,a1) (B b2, a2) rlen k dmp dt =
   withForeignPtr b1 $ \b1_ptr ->
   withForeignPtr b2 $ \b2_ptr ->

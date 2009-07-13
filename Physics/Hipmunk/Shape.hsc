@@ -84,7 +84,7 @@ import Physics.Hipmunk.Body (Mass, Moment)
 data ShapeType =
     -- | A circle is the fastest collision type. It also
     --   rolls smoothly.
-    Circle {radius :: !CpFloat}
+    Circle {radius :: !Distance}
 
     -- | A line segment is meant to be used as a static
     --   shape. (It can be used with moving bodies, however
@@ -92,7 +92,7 @@ data ShapeType =
     --   each other.)
   | LineSegment {start     :: !Position,
                  end       :: !Position,
-                 thickness :: !CpFloat}
+                 thickness :: !Distance}
 
     -- | Polygons are the slowest of all shapes but
     --   the most flexible. The list of vertices must form
@@ -272,7 +272,7 @@ moment m (Polygon verts)       off = momentForPoly m verts off
 -- | @momentForCircle m (ri,ro) off@ is the moment of inertia
 --   of a circle of @m@ mass, inner radius of @ri@, outer radius
 --   of @ro@ and at an offset @off@ from the center of the body.
-momentForCircle :: CpFloat -> (CpFloat, CpFloat) -> Position -> CpFloat
+momentForCircle :: Mass -> (Distance, Distance) -> Position -> Moment
 momentForCircle m (ri,ro) off = (m/2)*(ri*ri + ro*ro) + m*(off `dot` off)
 -- We recoded the C function to avoid FFI and unsafePerformIO
 -- on this simple function.
@@ -280,7 +280,7 @@ momentForCircle m (ri,ro) off = (m/2)*(ri*ri + ro*ro) + m*(off `dot` off)
 
 -- | @momentForSegment m p1 p2@ is the moment of inertia of a
 --   segment of mass @m@ going from point @p1@ to point @p2@.
-momentForSegment :: CpFloat -> Position -> Position -> CpFloat
+momentForSegment :: Mass -> Position -> Position -> Moment
 momentForSegment m p1 p2 =
     let len' = len (p2 - p1)
         offset = scale (p1 + p2) (recip 2)
@@ -294,7 +294,7 @@ momentForSegment m p1 p2 =
 --   the body and comprised of @verts@ vertices. This is similar
 --   to 'Polygon' (and the same restrictions for the vertices
 --   apply as well).
-momentForPoly :: CpFloat -> [Position] -> Position -> CpFloat
+momentForPoly :: Mass -> [Position] -> Position -> Moment
 momentForPoly m verts off = (m*sum1)/(6*sum2)
   where
     verts' = if off /= 0 then map (+off) verts else verts
@@ -477,7 +477,7 @@ data Intersection = IntNowhere         -- ^ Don't intercept.
 --   Note that a very small polygon may be completely \"eaten\"
 --   if all its vertices are within a @delta@ radius from the
 --   first.
-polyReduce :: CpFloat -> [Position] -> [Position]
+polyReduce :: Distance -> [Position] -> [Position]
 polyReduce delta = go
     where
       go (p1:p2:ps) | len (p2-p1) < delta = go (p1:ps)

@@ -47,6 +47,8 @@ module Physics.Hipmunk.Common
      infinity,
      Time,
      Angle,
+     Distance,
+     Damping,
 
      -- * Global variables
      -- $global_vars
@@ -124,6 +126,14 @@ type Time = CpFloat
 --   represents an angle in radians.
 type Angle = CpFloat
 
+-- | Type synonym used to hint that the argument or result
+--   represents a distance.
+type Distance = CpFloat
+
+-- | Type synonym used to hint that the argument or result
+--   represents a damping constant.
+type Damping = CpFloat
+
 
 -- $global_vars
 --   Chipmunk tries to maintain a very few number of global
@@ -134,15 +144,18 @@ type Angle = CpFloat
 --   The shape counter is a global counter used for creating
 --   unique hash identifiers to the shapes.
 
--- | @resetShapeCounter@ reset the shape counter to its default value.
---   This is used to add determinism to a simulation. As the ids
---   created with this counter may affect the order in which the
---   collisions happen, there may be very slight differences in
---   different simulations.
+-- | @resetShapeCounter@ reset the shape counter to its default
+--   value.  This is used to add determinism to a simulation.  As
+--   the ids created with this counter may affect the order in
+--   which the collisions happen, there may be very slight
+--   differences in different simulations.  It may be very useful
+--   to call @resetShapeCounter@ everytime you start a new
+--   simulation.
 --
 --   However, be careful as you should not use shapes created
---   before a call to @resetCounter@ with shapes created after
---   it as they may have the same id.
+--   before a call to @resetCounter@ with shapes created after it
+--   as they may have the same id.  This means that can't add
+--   shapes created after the call to a space created before it.
 resetShapeCounter :: IO ()
 resetShapeCounter = cpResetShapeIdCounter
 

@@ -18,7 +18,7 @@ module Physics.Hipmunk.Constraint
      redefineC,
      Constraint,
      -- ** Forgetting the phantom type
-     -- $semiunsafe
+     -- $phantom
      Unknown,
      forgetC,
 
@@ -101,11 +101,6 @@ redefineC (C c b1 b2) t = withForeignPtr c $ \c_ptr -> redef c_ptr b1 b2 t
 --   constraints in a homogeneous data structure (such as a
 --   list).
 
--- | An unknown constraint \"type\".  Note that this isn't a
---   'ConstraintType' because you can't create a constraint of
---   @Unknown@ type.
-data Unknown = Unknown
-
 -- | Completely safe function that discards the constraint type
 --   (which is a phantom type).  You can \"remember\" it again by
 --   using @unsafeRemember@ from the @Unsafe@ module.
@@ -139,8 +134,8 @@ instance ConstraintType Pin where
 --   it has a minimum and a maximum distance.
 data Slide = Slide {slideAnchor1 :: !Position {-^ First anchor. -}
                    ,slideAnchor2 :: !Position {-^ Second anchor. -}
-                   ,slideMinDist :: !CpFloat  {-^ Minimum distance. -}
-                   ,slideMaxDist :: !CpFloat  {-^ Maximum distance. -}}
+                   ,slideMinDist :: !Distance {-^ Minimum distance. -}
+                   ,slideMaxDist :: !Distance {-^ Maximum distance. -}}
     deriving (Eq, Ord, Show)
 
 instance ConstraintType Slide where
@@ -210,9 +205,9 @@ instance ConstraintType Gear where
 data DampedSpring = DampedSpring {
       dampedAnchor1    :: !Position {-^ First anchor. -}
      ,dampedAnchor2    :: !Position {-^ Second anchor. -}
-     ,dampedRestLength :: !CpFloat  {-^ Rest length. -}
+     ,dampedRestLength :: !Distance {-^ Rest length. -}
      ,dampedStiffness  :: !CpFloat  {-^ Stiffness. -}
-     ,dampedDamping    :: !CpFloat  {-^ Damping. -}}
+     ,dampedDamping    :: !Damping  {-^ Damping. -}}
     deriving (Eq, Ord, Show)
 
 instance ConstraintType DampedSpring where
@@ -229,7 +224,7 @@ instance ConstraintType DampedSpring where
 data DampedRotarySpring = DampedRotarySpring {
       dampedRotRestAngle :: !Angle   {-^ Rest angle. -}
      ,dampedRotStiffness :: !CpFloat {-^ Stiffness. -}
-     ,dampedRotDamping   :: !CpFloat {-^ Damping. -}}
+     ,dampedRotDamping   :: !Damping {-^ Damping. -}}
     deriving (Eq, Ord, Show)
 
 instance ConstraintType DampedRotarySpring where
@@ -243,8 +238,8 @@ instance ConstraintType DampedRotarySpring where
 -- | A rotary limit constraints the difference of angle
 --   between two bodies.
 data RotaryLimit = RotaryLimit {
-      rotaryMinDist :: CpFloat {-^ Minimum distance. -}
-     ,rotaryMaxDist :: CpFloat {-^ Maximum distance. -}}
+      rotaryMinDist :: Distance {-^ Minimum distance. -}
+     ,rotaryMaxDist :: Distance {-^ Maximum distance. -}}
     deriving (Eq, Ord, Show)
 
 instance ConstraintType RotaryLimit where

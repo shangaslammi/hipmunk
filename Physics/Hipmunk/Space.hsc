@@ -38,7 +38,6 @@ module Physics.Hipmunk.Space
      getGravity,
      setGravity,
      -- ** Damping
-     Damping,
      getDamping,
      setDamping,
      -- ** Time stamp
@@ -284,7 +283,6 @@ setGravity (P sp _ _) g =
 
 -- | The amount of viscous damping applied to the system.
 --   (default is 1)
-type Damping = CpFloat
 getDamping :: Space -> IO Damping
 getDamping (P sp _ _) =
     withForeignPtr sp #{peek cpSpace, damping}
@@ -324,7 +322,7 @@ getTimeStamp (P sp _ _) =
 --   when requested by 'rehashStatic', however that will
 --   use more memory.
 
-resizeStaticHash :: Space -> CpFloat -> CInt -> IO ()
+resizeStaticHash :: Space -> Distance -> CInt -> IO ()
 resizeStaticHash (P sp _ _) dim count =
     withForeignPtr sp $ \sp_ptr -> do
       cpSpaceResizeStaticHash sp_ptr dim count
@@ -333,7 +331,7 @@ foreign import ccall unsafe "wrapper.h"
     cpSpaceResizeStaticHash :: SpacePtr -> CpFloat
                             -> CInt -> IO ()
 
-resizeActiveHash :: Space -> CpFloat -> CInt -> IO ()
+resizeActiveHash :: Space -> Distance -> CInt -> IO ()
 resizeActiveHash (P sp _ _) dim count =
   withForeignPtr sp $ \sp_ptr -> do
     cpSpaceResizeActiveHash sp_ptr dim count
@@ -427,18 +425,18 @@ foreign import ccall {- !!! -} safe {- !!! -}
 --   If @False@, then the collision will be ignored.
 --
 --   The callbacks themselves may execute arbitrary operations
---   with a simple exception: /callbacks cannot add or remove
---   entities from the space/. You can of course create a queue
+--   with a simple exception: /callbacks cannot add or remove/
+--   /entities from the space/. You can of course create a queue
 --   of add\/remove actions and then process it after 'step'
 --   returns.
 --
---   As for the events that trigger collision pair functions,
---   the rule is simple. All shapes have a 'CollisionType'.
---   When shapes @a@ and @b@ collide, if there was a callback
---   associated with @a@'s and @b@'s collision types, then
---   it is called. Otherwise the default callback is called.
---   By default, the default callback always returns @True@
---   (i.e. all collisions are treated).
+--   As for the events that trigger collision pair functions, the
+--   rule is simple. All shapes have a 'CollisionType'.  When
+--   shapes @a@ and @b@ collide, if there was a callback
+--   associated with @a@'s and @b@'s collision types, then it is
+--   called. Otherwise the default callback is called.  The
+--   default callback always returns @True@ (i.e. all collisions
+--   are treated).
 
 
 -- | A 'Callback' function can be of three types:
