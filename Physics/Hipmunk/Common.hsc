@@ -69,6 +69,7 @@ module Physics.Hipmunk.Common
 
      -- ** Bias coefficient
      -- $bias_coef
+     BiasCoef,
      getBiasCoef,
      setBiasCoef,
 
@@ -198,11 +199,12 @@ foreign import ccall unsafe "wrapper.h &cp_collision_slop"
 --   The amount of penetration to reduce in each step. Values should
 --   range from 0 to 1. Using large values will eliminate penetration in
 --   fewer steps, but can cause vibration. (default is 0.1)
+type BiasCoef = CpFloat
 
-getBiasCoef :: IO CpFloat
+getBiasCoef :: IO BiasCoef
 getBiasCoef = peek cp_bias_coef
 
-setBiasCoef :: CpFloat -> IO ()
+setBiasCoef :: BiasCoef -> IO ()
 setBiasCoef = poke cp_bias_coef
 
 foreign import ccall unsafe "wrapper.h &cp_bias_coef"
@@ -213,10 +215,10 @@ foreign import ccall unsafe "wrapper.h &cp_bias_coef"
 --   Similar to the bias coefficient, but sets the default bias
 --   for all constraints. (default is 0.1)
 
-getConstraintBiasCoef :: IO CpFloat
+getConstraintBiasCoef :: IO BiasCoef
 getConstraintBiasCoef = peek cp_constraint_bias_coef
 
-setConstraintBiasCoef :: CpFloat -> IO ()
+setConstraintBiasCoef :: BiasCoef -> IO ()
 setConstraintBiasCoef = poke cp_constraint_bias_coef
 
 foreign import ccall unsafe "wrapper.h &cp_constraint_bias_coef"

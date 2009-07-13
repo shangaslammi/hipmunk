@@ -16,6 +16,7 @@ module Physics.Hipmunk.Constraint
     (-- * Common interface
      newConstraint,
      redefineC,
+     setBiasCoefC,
      Constraint,
      -- ** Forgetting the phantom type
      -- $phantom
@@ -94,6 +95,12 @@ redefineC (C c b1 b2) t = withForeignPtr c $ \c_ptr -> redef c_ptr b1 b2 t
 {-# SPECIALISE redefineC :: Constraint DampedRotarySpring -> DampedRotarySpring -> IO () #-}
 {-# SPECIALISE redefineC :: Constraint RotaryLimit -> RotaryLimit -> IO () #-}
 {-# SPECIALISE redefineC :: Constraint SimpleMotor -> SimpleMotor -> IO () #-}
+
+-- | Sets the constraint's bias coefficient.  By default it is
+--   equal to the last value set globally with
+--   'setConstraintBiasCoef', which initially is @0.1@
+setBiasCoefC :: BiasCoef -> Constraint a -> IO ()
+setBiasCoefC b (C c _ _) = withForeignPtr c $ flip #{poke cpConstraint, biasCoef} b
 
 -- $phantom
 --   These functions discard the phantom type of the constraint.
