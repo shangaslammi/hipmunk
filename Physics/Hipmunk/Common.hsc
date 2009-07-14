@@ -155,7 +155,7 @@ type Damping = CpFloat
 --
 --   However, be careful as you should not use shapes created
 --   before a call to @resetCounter@ with shapes created after it
---   as they may have the same id.  This means that can't add
+--   as they may have the same id.  This means that you can't add
 --   shapes created after the call to a space created before it.
 resetShapeCounter :: IO ()
 resetShapeCounter = cpResetShapeIdCounter

@@ -39,8 +39,8 @@ import Physics.Hipmunk.Constraint (Unknown)
 --   @off@.  Be careful, /you should not change the shape type/.
 --   For example, it is unsafe to change a circle shape's radius,
 --   but it is an error to try to change a circle into a segment
---   or a polygon.  Note also that these errors /are not
---   checked/, meaning /they will probably crash Chipmunk/.
+--   or a polygon.  Note also that these errors /are not/
+--   /checked/, meaning /they will probably crash Chipmunk/.
 unsafeShapeRedefine :: Shape -> ShapeType -> Position -> IO ()
 unsafeShapeRedefine (S shape _) (Circle r) off =
   withForeignPtr shape $ \shape_ptr ->
@@ -80,7 +80,7 @@ foreign import ccall unsafe "wrapper.h"
 --   anything. It is unsafe because you should call 'redefine'
 --   only on the same kind of constraint you created, and this
 --   function allows you to bypass the type system checks.  Note
---   Also that, unlike Chipmunk, we don't check at run-time that
+--   also that, unlike Chipmunk, we don't check at run-time that
 --   'redefine' is being called on the right type!
 unsafeRememberC :: ConstraintType a => Constraint Unknown -> Constraint a
 unsafeRememberC (C c b1 b2) = C c b1 b2
