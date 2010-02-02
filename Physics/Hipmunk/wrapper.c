@@ -42,16 +42,13 @@ void wrSegmentShapeInit(cpSegmentShape *seg, cpBody *body,
                         cpVect *a, cpVect *b, cpFloat r) {
     cpSegmentShapeInit(seg, body, *a, *b, r);
 }
-int wrShapePointQuery(cpShape *shape, cpVect *p,
-                      cpLayers layers, cpGroup group) {
-    return cpShapePointQuery(shape, *p, layers, group);
+int wrShapePointQuery(cpShape *shape, cpVect *p) {
+    return cpShapePointQuery(shape, *p);
 }
 
-int cpShapeSegmentQuery(cpShape*, cpVect, cpVect, cpLayers, cpGroup, cpSegmentQueryInfo*);
 int wrShapeSegmentQuery(cpShape *shape, cpVect *a, cpVect *b,
-                        cpLayers layers, cpGroup group,
                         cpSegmentQueryInfo *info) {
-    return cpShapeSegmentQuery(shape, *a, *b, layers, group, info);
+    return cpShapeSegmentQuery(shape, *a, *b, info);
 }
 
 

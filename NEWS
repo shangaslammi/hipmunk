@@ -1,6 +1,8 @@
 Version 5.1.0
 =============
  - Updated to Chipmunk 5.0 revision 402.
+ - @shapePointQuery@ and @shapeSegmentQuery@ don't filter groups
+   and layers anymore.
 
 Version 5.0.1
 =============

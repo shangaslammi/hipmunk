@@ -314,34 +314,32 @@ momentForPoly m verts off = (m*sum1)/(6*sum2)
 pairs :: (a -> a -> b) -> [a] -> [b]
 pairs f l = zipWith f l (tail $ cycle l)
 
--- | @shapePointQuery shape p l g@ returns @True@ iff the point
+-- | @shapePointQuery shape p@ returns @True@ iff the point
 --   in position @p@ (in world's coordinates) lies within the
---   shape @shape@, is not of the same group and share at least
---   one layer.
-shapePointQuery :: Shape -> Position -> Layers -> Group -> IO Bool
-shapePointQuery (S shape _) p layers group =
+--   shape @shape@.
+shapePointQuery :: Shape -> Position -> IO Bool
+shapePointQuery (S shape _) p =
   withForeignPtr shape $ \shape_ptr ->
   with p $ \p_ptr -> do
-    i <- wrShapePointQuery shape_ptr p_ptr layers group
+    i <- wrShapePointQuery shape_ptr p_ptr
     return (i /= 0)
 
 foreign import ccall unsafe "wrapper.h"
-    wrShapePointQuery :: ShapePtr -> VectorPtr -> Layers -> Group -> IO CInt
+    wrShapePointQuery :: ShapePtr -> VectorPtr -> IO CInt
 
--- | @shapeSegmentQuery shape p1 p2 l g@ returns @Just (t,n)@ iff
---   the segment from @p1@ to @p2@ (in world's coordinates)
---   intersects with the shape @shape@, is not of the same group
---   and share at least one layer.  In that case, @0 <= t <= 1@
---   indicates that one of the intersections is at point @p1 +
+-- | @shapeSegmentQuery shape p1 p2@ returns @Just (t,n)@ iff the
+--   segment from @p1@ to @p2@ (in world's coordinates)
+--   intersects with the shape @shape@.  In that case, @0 <= t <=
+--   1@ indicates that one of the intersections is at point @p1 +
 --   (p2 - p1) \`scale\` t@ with normal @n@.
-shapeSegmentQuery :: Shape -> Position -> Position -> Layers -> Group
+shapeSegmentQuery :: Shape -> Position -> Position
                   -> IO (Maybe (CpFloat, Vector))
-shapeSegmentQuery (S shape _) p1 p2 layers group =
+shapeSegmentQuery (S shape _) p1 p2 =
     withForeignPtr shape $ \shape_ptr ->
     with p1 $ \p1_ptr ->
     with p2 $ \p2_ptr ->
     allocaBytes #{size cpSegmentQueryInfo} $ \info_ptr -> do
-      i <- wrShapeSegmentQuery shape_ptr p1_ptr p2_ptr layers group info_ptr
+      i <- wrShapeSegmentQuery shape_ptr p1_ptr p2_ptr info_ptr
       if (i == 0) then return Nothing else do
         t <- #{peek cpSegmentQueryInfo, t} info_ptr
         n <- #{peek cpSegmentQueryInfo, n} info_ptr
@@ -349,7 +347,7 @@ shapeSegmentQuery (S shape _) p1 p2 layers group =
 
 foreign import ccall unsafe "wrapper.h"
     wrShapeSegmentQuery :: ShapePtr -> VectorPtr -> VectorPtr
-                        -> Layers -> Group -> Ptr () -> IO CInt
+                        -> Ptr () -> IO CInt
 
 
 

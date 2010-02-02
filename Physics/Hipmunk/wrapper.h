@@ -18,8 +18,8 @@ void wrBodyApplyForce(cpBody*, cpVect*, cpVect*);
 // From cpShape.h
 void wrCircleShapeInit(cpCircleShape*, cpBody*, cpVect*, cpFloat);
 void wrSegmentShapeInit(cpSegmentShape*, cpBody*, cpVect*, cpVect*, cpFloat);
-int wrShapePointQuery(cpShape*, cpVect*, cpLayers, cpGroup);
-int wrShapeSegmentQuery(cpShape*, cpVect*, cpVect*, cpLayers, cpGroup, cpSegmentQueryInfo*);
+int wrShapePointQuery(cpShape*, cpVect*);
+int wrShapeSegmentQuery(cpShape*, cpVect*, cpVect*, cpSegmentQueryInfo*);
 
 // From cpPolyShape.h
 void wrPolyShapeInit(cpPolyShape*, cpBody*, int, cpVect*, cpVect*);
