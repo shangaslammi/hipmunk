@@ -1,3 +1,7 @@
+Version 5.1.0
+=============
+ - Updated to Chipmunk 5.0 revision 402.
+
 Version 5.0.1
 =============
  - Updated dependencies for GHC 6.12.  Thanks, dons.
