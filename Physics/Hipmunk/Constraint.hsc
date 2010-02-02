@@ -210,6 +210,7 @@ instance ConstraintType Gear where
   redef ptr _ _ (Gear p r) = do
       #{poke cpGearJoint, phase} ptr p
       #{poke cpGearJoint, ratio} ptr r
+      #{poke cpGearJoint, ratio_inv} ptr (1/r)
 
 -- | A simple damped spring.  Generally this constraint
 --   should be used instead of @applyDampedSpring@.
