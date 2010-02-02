@@ -251,8 +251,8 @@ data RotaryLimit = RotaryLimit {
 
 instance ConstraintType RotaryLimit where
   size _ = #{size cpRotaryLimitJoint}
-  init_ (RotaryLimit mn mx)        = wrRotaryLimitJointInit mn mx
-  redef ptr _ _ (RotaryLimit mn mx)        = do
+  init_ (RotaryLimit mn mx) = wrRotaryLimitJointInit mn mx
+  redef ptr _ _ (RotaryLimit mn mx) = do
       #{poke cpRotaryLimitJoint, min} ptr mn
       #{poke cpRotaryLimitJoint, max} ptr mx
 
