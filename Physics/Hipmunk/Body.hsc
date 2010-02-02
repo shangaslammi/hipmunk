@@ -36,6 +36,8 @@ module Physics.Hipmunk.Body
      Velocity,
      getVelocity,
      setVelocity,
+     getMaxVelocity,
+     setMaxVelocity,
      -- *** Force
      Force,
      getForce,
@@ -49,6 +51,8 @@ module Physics.Hipmunk.Body
      AngVel,
      getAngVel,
      setAngVel,
+     getMaxAngVel,
+     setMaxAngVel,
      -- *** Torque
      Torque,
      getTorque,
@@ -166,6 +170,17 @@ setVelocity (B b) v = do
   withForeignPtr b $ \ptr -> do
     #{poke cpBody, v} ptr v
 
+-- | Maximum linear velocity after integrating, defaults to infinity.
+getMaxVelocity :: Body -> IO CpFloat
+getMaxVelocity (B b) = do
+  withForeignPtr b $ \ptr -> do
+    #{peek cpBody, v_limit} ptr
+
+setMaxVelocity :: Body -> CpFloat -> IO ()
+setMaxVelocity (B b) v_limit = do
+  withForeignPtr b $ \ptr -> do
+    #{poke cpBody, v_limit} ptr v_limit
+
 
 
 type Force = Vector
@@ -192,6 +207,18 @@ setAngVel :: Body -> AngVel -> IO ()
 setAngVel (B b) w = do
   withForeignPtr b $ \ptr -> do
     #{poke cpBody, w} ptr w
+
+-- | Maximum angular velocity after integrating, defaults to infinity.
+getMaxAngVel :: Body -> IO CpFloat
+getMaxAngVel (B b) = do
+  withForeignPtr b $ \ptr -> do
+    #{peek cpBody, w_limit} ptr
+
+setMaxAngVel :: Body -> CpFloat -> IO ()
+setMaxAngVel (B b) w_limit = do
+  withForeignPtr b $ \ptr -> do
+    #{poke cpBody, w_limit} ptr w_limit
+
 
 
 type Torque = CpFloat
