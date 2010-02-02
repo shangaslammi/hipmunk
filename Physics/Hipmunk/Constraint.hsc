@@ -40,6 +40,8 @@ module Physics.Hipmunk.Constraint
      DampedSpring(..),
      -- ** Damped rotary spring
      DampedRotarySpring(..),
+     -- ** Ratchet joint
+     Ratchet(..),
      -- ** Rotary limit
      RotaryLimit(..),
      -- ** Simple motor
@@ -78,6 +80,7 @@ newConstraint body1@(B b1) body2@(B b2) type_ =
 {-# SPECIALISE newConstraint :: Body -> Body -> Gear -> IO (Constraint Gear) #-}
 {-# SPECIALISE newConstraint :: Body -> Body -> DampedSpring -> IO (Constraint DampedSpring) #-}
 {-# SPECIALISE newConstraint :: Body -> Body -> DampedRotarySpring -> IO (Constraint DampedRotarySpring) #-}
+{-# SPECIALISE newConstraint :: Body -> Body -> Ratchet -> IO (Constraint Ratchet) #-}
 {-# SPECIALISE newConstraint :: Body -> Body -> RotaryLimit -> IO (Constraint RotaryLimit) #-}
 {-# SPECIALISE newConstraint :: Body -> Body -> SimpleMotor -> IO (Constraint SimpleMotor) #-}
 
@@ -93,6 +96,7 @@ redefineC (C c b1 b2) t = withForeignPtr c $ \c_ptr -> redef c_ptr b1 b2 t
 {-# SPECIALISE redefineC :: Constraint Gear -> Gear -> IO () #-}
 {-# SPECIALISE redefineC :: Constraint DampedSpring -> DampedSpring -> IO () #-}
 {-# SPECIALISE redefineC :: Constraint DampedRotarySpring -> DampedRotarySpring -> IO () #-}
+{-# SPECIALISE redefineC :: Constraint Ratchet -> Ratchet -> IO () #-}
 {-# SPECIALISE redefineC :: Constraint RotaryLimit -> RotaryLimit -> IO () #-}
 {-# SPECIALISE redefineC :: Constraint SimpleMotor -> SimpleMotor -> IO () #-}
 
@@ -242,6 +246,19 @@ instance ConstraintType DampedRotarySpring where
       #{poke cpDampedRotarySpring, stiffness} ptr s
       #{poke cpDampedRotarySpring, damping} ptr d
 
+-- | A ratchet constraint.
+data Ratchet = Ratchet {
+      ratchetPhase :: !CpFloat {-^ Phase. -}
+     ,ratchet      :: !CpFloat {-^ Ratchet. -}}
+    deriving (Eq, Ord, Show)
+
+instance ConstraintType Ratchet where
+  size _ = #{size cpRatchetJoint}
+  init_ (Ratchet p r) = wrRatchetJointInit p r
+  redef ptr _ _ (Ratchet p r) = do
+    #{poke cpRatchetJoint, phase} ptr p
+    #{poke cpRatchetJoint, ratchet} ptr r
+
 -- | A rotary limit constraints the difference of angle
 --   between two bodies.
 data RotaryLimit = RotaryLimit {
@@ -309,6 +326,8 @@ foreign import ccall unsafe "wrapper.h"
     wrDampedSpringInit :: CpFloat -> CpFloat -> CpFloat -> VectorPtr -> VectorPtr -> ConstraintInit
 foreign import ccall unsafe "wrapper.h"
     wrDampedRotarySpringInit :: CpFloat -> CpFloat -> CpFloat -> ConstraintInit
+foreign import ccall unsafe "wrapper.h"
+    wrRatchetJointInit :: CpFloat -> CpFloat -> ConstraintInit
 foreign import ccall unsafe "wrapper.h"
     wrRotaryLimitJointInit :: CpFloat -> CpFloat -> ConstraintInit
 foreign import ccall unsafe "wrapper.h"

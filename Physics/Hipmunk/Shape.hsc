@@ -160,6 +160,7 @@ getBody (S _ b) = b
 --   meaning for Chipmunk other than the correspondence between
 --   shapes and the collision pair functions you add. (default is
 --   zero)
+
 type CollisionType = #{type cpCollisionType}
 getCollisionType :: Shape -> IO CollisionType
 getCollisionType (S shape _) =

@@ -1,6 +1,7 @@
 Version 5.1.0
 =============
  - Updated to Chipmunk 5.0 revision 402.
+ - Support for the new ratchet joint.  Thanks, Owen Anderson.
  - @shapePointQuery@ and @shapeSegmentQuery@ don't filter groups
    and layers anymore.
 

@@ -93,6 +93,10 @@ void wrDampedRotarySpringInit(cpFloat restAngle, cpFloat stiffness, cpFloat damp
                               cpDampedRotarySpring *joint, cpBody *a, cpBody *b) {
     cpDampedRotarySpringInit(joint, a, b, restAngle, stiffness, damping);
 }
+void wrRatchetJointInit(cpFloat phase, cpFloat ratchet,
+                        cpRatchetJoint* joint, cpBody* a, cpBody* b) {
+    cpRatchetJointInit(joint, a, b, phase, ratchet);
+}
 void wrRotaryLimitJointInit(cpFloat min, cpFloat max,
                             cpRotaryLimitJoint *joint, cpBody *a, cpBody *b) {
     cpRotaryLimitJointInit(joint, a, b, min, max);
