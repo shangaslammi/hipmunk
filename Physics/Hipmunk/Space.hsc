@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Physics/Hipmunk/Space.hsc
--- Copyright   :  (c) 2008-2009 Felipe A. Lessa
+-- Copyright   :  (c) 2008-2010 Felipe A. Lessa
 -- License     :  MIT (see LICENSE)
 --
 -- Maintainer  :  felipe.lessa@gmail.com
@@ -262,12 +262,13 @@ setIterations (P sp _ _) it =
       #{poke cpSpace, iterations} sp_ptr it
 
 -- | The number of elastic iterations to use when solving
---   constraints.  (default is 0, meaning old-style elastic code
---   will be used, which probably isn't what you want).
+--   constraints.  If @0@, then old-style elastic code is used.
+--   (default is 0).
 type ElasticIterations = CInt
 getElasticIterations :: Space -> IO ElasticIterations
 getElasticIterations (P sp _ _) =
     withForeignPtr sp #{peek cpSpace, elasticIterations}
+{-# DEPRECATED setElasticIterations "Elastic iterations should no longer be needed" #-}
 setElasticIterations :: Space -> ElasticIterations -> IO ()
 setElasticIterations (P sp _ _) it =
     withForeignPtr sp $ \sp_ptr -> do
