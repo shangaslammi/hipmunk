@@ -212,8 +212,9 @@ instance Entity Shape where
     spaceRemove = spaceRemoveHelper unS cpSpaceRemoveShape
 foreign import ccall unsafe "wrapper.h"
     cpSpaceAddShape :: SpacePtr -> ShapePtr -> IO ()
-foreign import ccall unsafe "wrapper.h"
+foreign import ccall {- !!! -} safe {- !!! -} "wrapper.h"
     cpSpaceRemoveShape :: SpacePtr -> ShapePtr -> IO ()
+    -- may call the 'separate' handler.
 
 instance Entity (Constraint a) where
     spaceAdd    = spaceAddHelper    unC cpSpaceAddConstraint (const Nothing)
@@ -241,8 +242,9 @@ instance Entity StaticShape where
     spaceRemove = spaceRemoveHelper (unS . unStatic) cpSpaceRemoveStaticShape
 foreign import ccall unsafe "wrapper.h"
     cpSpaceAddStaticShape :: SpacePtr -> ShapePtr -> IO ()
-foreign import ccall unsafe "wrapper.h"
+foreign import ccall {- !!! -} safe {- !!! -} "wrapper.h"
     cpSpaceRemoveStaticShape :: SpacePtr -> ShapePtr -> IO ()
+    -- may call the 'separate' handler.
 
 
 
