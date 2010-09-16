@@ -3,11 +3,11 @@ Build-Type:    Simple
 Tested-With:   GHC
 Category:      Physics, Game
 Name:          Hipmunk
-Version:       5.0.1.1
+Version:       5.1.0
 Stability:     provisional
 License:       OtherLicense
 License-File:  LICENSE
-Copyright:     (c) 2008-2009 Felipe A. Lessa
+Copyright:     (c) 2008-2010 Felipe A. Lessa
 Author:        Felipe A. Lessa <felipe.lessa@gmail.com>
 Maintainer:    Felipe A. Lessa <felipe.lessa@gmail.com>
 Synopsis:      A Haskell binding for Chipmunk.
@@ -21,18 +21,21 @@ Description:
       <http://hackage.haskell.org/package/HipmunkPlayground>
       for a demonstration of this library.
       .
-      New in version 5.0.1:
+      New in version 5.1.0:
       .
-      * Updated dependencies for GHC 6.12.  Thanks, dons.
+      * Updated to Chipmunk 5.0 revision 402.
+        'setElasticIterations' is now deprecated.
       .
-      New in version 5.0.0:
+      * New, revamped callback system.  See module
+        "Physics.Hipmunk.Callbacks".
       .
-      * Updated for a prerelease of Chipmunk 5.0 from subversion
-        revision 192.  Besides bugfixes this new version brings
-        the long awaited new constraints type, doubling the
-        number of different joints from four to nine.
+      * Support for the new ratchet joint.  Thanks, Owen
+        Anderson.
       .
-      * Tighter dependencies following the versioning policies.
+      * Support for limits on linear and angular velocities.
+      .
+      * @shapePointQuery@ and @shapeSegmentQuery@ don't filter
+        groups and layers anymore.
       .
       Licensed under the MIT license (like Chipmunk itself).
 Extra-Source-Files:
@@ -142,12 +145,12 @@ Library
     Build-Depends: base >= 3 && < 5,
                    array >= 0.1 && < 0.4,
                    containers >= 0.1 && < 0.4,
-                   transformers == 0.2.*
+                   transformers >= 0.2 && < 0.3
   else
     Build-Depends: base >= 2 && < 3,
-                   transformers == 0.2.*
+                   transformers >= 0.2 && < 0.3
   Extensions:    CPP, ForeignFunctionInterface
   Build-Tools:   hsc2hs
   GHC-Options:   -Wall
-  CC-Options:    -O3 -ffast-math -std=gnu99
+  CC-Options:    -ffast-math -std=gnu99
   Extra-Libraries: m

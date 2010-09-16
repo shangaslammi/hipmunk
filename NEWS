@@ -1,6 +1,7 @@
 Version 5.1.0
 =============
- - Updated to Chipmunk 5.0 revision 402.
+ - Updated to Chipmunk 5.0 revision 402.  'setElasticIterations'
+   is now deprecated.
  - New, revamped callback system.  See module
    "Physics.Hipmunk.Callbacks".
  - Support for the new ratchet joint.  Thanks, Owen Anderson.

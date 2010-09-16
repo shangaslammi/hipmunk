@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Physics/Hipmunk/Hipmunk.hs
--- Copyright   :  (c) Felipe A. Lessa 2008-2009
+-- Copyright   :  (c) Felipe A. Lessa 2008-2010
 -- License     :  MIT (see LICENSE)
 --
 -- Maintainer  :  felipe.lessa@gmail.com

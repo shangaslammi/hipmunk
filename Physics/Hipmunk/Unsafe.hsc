@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Physics/Hipmunk/Unsafe.hsc
--- Copyright   :  (c) 2008-2009 Felipe A. Lessa
+-- Copyright   :  (c) 2008-2010 Felipe A. Lessa
 -- License     :  MIT (see LICENSE)
 --
 -- Maintainer  :  felipe.lessa@gmail.com
