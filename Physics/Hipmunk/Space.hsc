@@ -63,7 +63,6 @@ import qualified Data.Foldable as F
 import qualified Data.Map as M
 import Control.Exception (bracket)
 import Control.Monad (when)
-import Data.Array.Storable
 import Data.IORef
 import Foreign hiding (new)
 import Foreign.C.Types (CInt)
@@ -364,7 +363,7 @@ foreign import ccall unsafe "wrapper.h"
 --
 --   * Isn't of the same group as @g@.
 --
---   * Shares at least on layer with @l@.
+--   * Shares at least one layer with @l@.
 --
 --   The order in which the callback is called is unspecified.
 --   However it is guaranteed that it will be called once,

@@ -13,9 +13,10 @@ Maintainer:    Felipe A. Lessa <felipe.lessa@gmail.com>
 Synopsis:      A Haskell binding for Chipmunk.
 Description:
       Chipmunk is a fast, simple, portable, 2D physics engine
-      (<http://wiki.slembcke.net/main/published/Chipmunk>).  This
-      package contains a prerelease Chipmunk 5.0 source
-      and Haskell bindings to all of its functions. It is
+      (<http://code.google.com/p/chipmunk-physics/> and
+      <http://wiki.slembcke.net/main/published/Chipmunk>).  This
+      package contains a prerelease Chipmunk 5.0 source and
+      Haskell bindings to all of its functions. It is
       completely self-contained.  Please see
       <http://hackage.haskell.org/package/HipmunkPlayground>
       for a demonstration of this library.

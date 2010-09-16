@@ -32,7 +32,6 @@ import Foreign.C
 import Physics.Hipmunk.Common
 import Physics.Hipmunk.Internal
 import Physics.Hipmunk.Shape
-import Physics.Hipmunk.Constraint (Unknown)
 
 -- | @unsafeShapeRedefine shape type off@ redefines @shape@ to
 --   have new parameters described on @type@ and to be at offset
