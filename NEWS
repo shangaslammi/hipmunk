@@ -1,6 +1,8 @@
 Version 5.1.0
 =============
  - Updated to Chipmunk 5.0 revision 402.
+ - New, revamped callback system.  See module
+   "Physics.Hipmunk.Callbacks".
  - Support for the new ratchet joint.  Thanks, Owen Anderson.
  - Support for limits on linear and angular velocities.
  - @shapePointQuery@ and @shapeSegmentQuery@ don't filter groups

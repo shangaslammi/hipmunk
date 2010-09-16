@@ -98,6 +98,7 @@ Flag small_base
 Library
   Exposed-Modules:
       Physics.Hipmunk,
+      Physics.Hipmunk.Callbacks,
       Physics.Hipmunk.Common,
       Physics.Hipmunk.Body,
       Physics.Hipmunk.Shape,
@@ -139,9 +140,11 @@ Library
   if flag(small_base)
     Build-Depends: base >= 3 && < 5,
                    array >= 0.1 && < 0.4,
-                   containers >= 0.1 && < 0.4
+                   containers >= 0.1 && < 0.4,
+                   transformers == 0.2.*
   else
-    Build-Depends: base >= 2 && < 3
+    Build-Depends: base >= 2 && < 3,
+                   transformers == 0.2.*
   Extensions:    CPP, ForeignFunctionInterface
   Build-Tools:   hsc2hs
   GHC-Options:   -Wall

@@ -30,13 +30,23 @@ module Physics.Hipmunk.Internal
 
      SpacePtr,
      Space(..),
+     Callbacks(..),
+     HandlerFunPtrs,
      unP,
+     retriveShape,
+     freeHandlerFunPtrs,
+
+     Entity(..),
+
+     ArbiterPtr,
 
      Contact(..),
      ContactPtr
     )
     where
 
+import qualified Data.Map as M
+import Control.Monad (when)
 import Data.IORef
 import Data.Map (Map)
 import Foreign
@@ -137,8 +147,10 @@ data Space = P !(ForeignPtr Space)
                !(IORef Callbacks)  -- Added callbacks
 type SpacePtr  = Ptr Space
 type Entities  = Map (Ptr ()) (Either (ForeignPtr ()) Shape)
-type Callbacks = (Maybe (FunPtr ()), -- Default
-                  Map (CollisionType_, CollisionType_) (FunPtr ()))
+data Callbacks = CBs {cbsDefault  :: HandlerFunPtrs
+                     ,cbsHandlers :: Map (CollisionType_, CollisionType_) HandlerFunPtrs
+                     ,cbsPostStep :: [FunPtr ()]}
+type HandlerFunPtrs = (FunPtr (), FunPtr (), FunPtr (), FunPtr ())
 type CollisionType_ = #{type cpCollisionType}
 -- Duplicated to avoid bringing the documentation from Shape module.
 
@@ -150,6 +162,39 @@ instance Eq Space where
 
 instance Ord Space where
     P s1 _ _ `compare` P s2 _ _ = s1 `compare` s2
+
+-- | Internal. Retrive a 'Shape' from a 'ShapePtr' and a 'Space'.
+retriveShape :: Space -> ShapePtr -> IO Shape
+retriveShape (P _ entities _) ptr = do
+  ent <- readIORef entities
+  let Just (Right shape) = M.lookup (castPtr ptr) ent
+  return shape
+
+-- | Internal.  Free all function pointers of this handler.
+freeHandlerFunPtrs :: HandlerFunPtrs -> IO ()
+freeHandlerFunPtrs (p1,p2,p3,p4) = f p1 >> f p2 >> f p3 >> f p4
+    where f p = when (p /= nullFunPtr) (freeHaskellFunPtr p)
+
+
+
+
+-- | Type class implemented by entities that can be
+--   added to a space.
+class Entity a where
+    -- | Add an entity to a 'Space'. Don't add the same
+    --   entity twice to a space.
+    spaceAdd :: Space -> a -> IO ()
+    -- | Remove an entity from a 'Space'. Don't remove
+    --   an entity that wasn't added.
+    spaceRemove :: Space -> a -> IO ()
+    -- | Internal function.  Retrive the pointer of this entity.
+    entityPtr :: a -> ForeignPtr a
+
+
+-- | Arbiters are used within callbacks.  We don't expose them to
+-- the user.
+data Arbiter = Arbiter
+type ArbiterPtr = Ptr Arbiter
 
 
 

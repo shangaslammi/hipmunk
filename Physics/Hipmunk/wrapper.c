@@ -1,12 +1,6 @@
 #include <stdlib.h>
 #include "wrapper.h"
 
-// New functions
-int wrConstantCallback(cpShape *a, cpShape *b, cpContact *contacts,
-                       int numContacts, cpFloat normal_coef, void *data) {
-    return (data == 0 ? 0 : 1);
-}
-
 // From cpBody.h
 void wrBodyUpdateVelocity(cpBody *b, cpVect *g, cpFloat d, cpFloat dt) {
     cpBodyUpdateVelocity(b, *g, d, dt);
@@ -106,12 +100,14 @@ void wrSimpleMotorInit(cpFloat rate, cpSimpleMotor *joint, cpBody *a, cpBody *b)
 }
 
 // From cpArbiter.h
-void wrContactsSumImpulses(cpContact *contacts, int numContacts, cpVect *ret) {
-    *ret = cpContactsSumImpulses(contacts, numContacts);
+void wrArbiterTotalImpulse(cpArbiter *arb, cpVect *ret) {
+    *ret = cpArbiterTotalImpulse(arb);
 }
-void wrContactsSumImpulsesWithFriction(cpContact *contacts, int numContacts,
-                                       cpVect *ret) {
-    *ret = cpContactsSumImpulsesWithFriction(contacts, numContacts);
+void wrArbiterTotalImpulseWithFriction(cpArbiter *arb, cpVect *ret) {
+    *ret = cpArbiterTotalImpulseWithFriction(arb);
+}
+void wrArbiterGetNormal(cpArbiter *arb, cpVect *ret) {
+    *ret = cpArbiterGetNormal(arb, 0);
 }
 
 // From cpSpace.h

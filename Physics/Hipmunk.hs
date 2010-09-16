@@ -20,15 +20,18 @@
 -----------------------------------------------------------------------------
 
 module Physics.Hipmunk
-    (module Physics.Hipmunk.Common,
+    (-- * Modules re-exported
+     module Physics.Hipmunk.Common,
      module Physics.Hipmunk.Body,
      module Physics.Hipmunk.Shape,
      module Physics.Hipmunk.Constraint,
-     module Physics.Hipmunk.Space
+     module Physics.Hipmunk.Space,
+     module Physics.Hipmunk.Callbacks
     )
     where
 
 import Physics.Hipmunk.Common
+import Physics.Hipmunk.Callbacks
 import Physics.Hipmunk.Body
 import Physics.Hipmunk.Shape
 import Physics.Hipmunk.Constraint

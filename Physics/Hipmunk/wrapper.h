@@ -4,9 +4,6 @@
 #include "chipmunk.h"
 #include "chipmunk_unsafe.h"
 
-// New functions
-int wrConstantCallback(cpShape*, cpShape*, cpContact*, int, cpFloat, void*);
-
 // From cpBody.h
 void wrBodyUpdateVelocity(cpBody*, cpVect*, cpFloat, cpFloat);
 void wrBodyApplyImpulse(cpBody*, cpVect*, cpVect*);
@@ -39,8 +36,9 @@ void wrRotaryLimitJointInit(cpFloat, cpFloat, cpRotaryLimitJoint*, cpBody*, cpBo
 void wrSimpleMotorInit(cpFloat, cpSimpleMotor*, cpBody*, cpBody*);
 
 // From cpArbiter.h
-void wrContactsSumImpulses(cpContact*, int, cpVect*);
-void wrContactsSumImpulsesWithFriction(cpContact*, int, cpVect*);
+void wrArbiterTotalImpulse(cpArbiter*, cpVect*);
+void wrArbiterTotalImpulseWithFriction(cpArbiter*, cpVect*);
+void wrArbiterGetNormal(cpArbiter*, cpVect*);
 
 // From cpSpace.h
 void wrSpacePointQuery(cpSpace*, cpVect*, cpLayers, cpGroup, cpSpacePointQueryFunc);
