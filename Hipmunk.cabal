@@ -23,6 +23,8 @@ Description:
       .
       New in version 5.2.0:
       .
+      * Do not use Chipmunk's debug mode.
+      .
       New in version 5.1.0:
       .
       * Updated to Chipmunk 5.0 revision 402.
@@ -154,5 +156,5 @@ Library
   Extensions:    CPP, ForeignFunctionInterface
   Build-Tools:   hsc2hs
   GHC-Options:   -Wall
-  CC-Options:    -ffast-math -std=gnu99
+  CC-Options:    -ffast-math -std=gnu99 -DNDEBUG
   Extra-Libraries: m
