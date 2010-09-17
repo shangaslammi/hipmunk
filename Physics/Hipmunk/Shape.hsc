@@ -22,32 +22,26 @@ module Physics.Hipmunk.Shape
      -- * Properties
      -- ** Collision type
      CollisionType,
-     getCollisionType,
-     setCollisionType,
+     collisionType,
      -- ** Group
      Group,
-     getGroup,
-     setGroup,
+     group,
      -- ** Layers
      Layers,
-     getLayers,
-     setLayers,
+     layers,
      -- ** Elasticity
      Elasticity,
-     getElasticity,
-     setElasticity,
+     elasticity,
      -- ** Friction
      Friction,
-     getFriction,
-     setFriction,
+     friction,
      -- ** Surface velocity
      SurfaceVel,
-     getSurfaceVel,
-     setSurfaceVel,
+     surfaceVel,
 
      -- * Utilities
-     getBody,
-     moment,
+     body,
+     momentForShape,
      momentForCircle,
      momentForSegment,
      momentForPoly,
@@ -71,6 +65,7 @@ module Physics.Hipmunk.Shape
     where
 
 import Data.List (foldl', sortBy)
+import Data.StateVar
 import Foreign hiding (rotate, new)
 import Foreign.C
 #include "wrapper.h"
@@ -108,24 +103,24 @@ data ShapeType =
 --   add the shape to a space otherwise it won't generate
 --   collisions.
 newShape :: Body -> ShapeType -> Position -> IO Shape
-newShape body@(B b) (Circle r) off =
+newShape body_@(B b) (Circle r) off =
   withForeignPtr b $ \b_ptr ->
   with off $ \off_ptr ->
   mallocForeignPtrBytes #{size cpCircleShape} >>= \shape ->
   withForeignPtr shape $ \shape_ptr -> do
     wrCircleShapeInit shape_ptr b_ptr off_ptr r
-    return (S shape body)
+    return (S shape body_)
 
-newShape body@(B b) (LineSegment p1 p2 r) off =
+newShape body_@(B b) (LineSegment p1 p2 r) off =
   withForeignPtr b $ \b_ptr ->
   with (p1+off) $ \p1off_ptr ->
   with (p2+off) $ \p2off_ptr ->
   mallocForeignPtrBytes #{size cpSegmentShape} >>= \shape ->
   withForeignPtr shape $ \shape_ptr -> do
     wrSegmentShapeInit shape_ptr b_ptr p1off_ptr p2off_ptr r
-    return (S shape body)
+    return (S shape body_)
 
-newShape body@(B b) (Polygon verts) off =
+newShape body_@(B b) (Polygon verts) off =
   withForeignPtr b $ \b_ptr ->
   with off $ \off_ptr ->
   withArrayLen verts $ \verts_len verts_ptr ->
@@ -134,7 +129,7 @@ newShape body@(B b) (Polygon verts) off =
     let verts_len' = fromIntegral verts_len
     wrPolyShapeInit shape_ptr b_ptr verts_len' verts_ptr off_ptr
     addForeignPtrFinalizer cpShapeDestroy shape
-    return (S shape body)
+    return (S shape body_)
 
 foreign import ccall unsafe "wrapper.h"
     wrCircleShapeInit :: ShapePtr -> BodyPtr -> VectorPtr
@@ -149,10 +144,10 @@ foreign import ccall unsafe "wrapper.h &cpShapeDestroy"
     cpShapeDestroy :: FunPtr (ShapePtr -> IO ())
 
 
--- | @getBody s@ is the body that this shape is associated
+-- | @body s@ is the body that this shape is associated
 --   to. Useful especially in a space callback.
-getBody :: Shape -> Body
-getBody (S _ b) = b
+body :: Shape -> Body
+body (S _ b) = b
 
 
 -- | The collision type is used to determine which collision
@@ -162,13 +157,11 @@ getBody (S _ b) = b
 --   zero)
 
 type CollisionType = #{type cpCollisionType}
-getCollisionType :: Shape -> IO CollisionType
-getCollisionType (S shape _) =
-  withForeignPtr shape #{peek cpShape, collision_type}
-setCollisionType :: Shape -> CollisionType -> IO ()
-setCollisionType (S shape _) col =
-  withForeignPtr shape $ \shape_ptr -> do
-    #{poke cpShape, collision_type} shape_ptr col
+collisionType :: Shape -> StateVar CollisionType
+collisionType (S shape _) = makeStateVar getter setter
+    where
+      getter = withForeignPtr shape #{peek cpShape, collision_type}
+      setter = withForeignPtr shape . flip #{poke cpShape, collision_type}
 
 -- | Groups are used to filter collisions between shapes. If
 --   the group is zero, then it imposes no restriction
@@ -181,13 +174,11 @@ setCollisionType (S shape _) col =
 --   alternative to creating a callback that filters the
 --   collisions.
 type Group = #{type cpGroup}
-getGroup :: Shape -> IO Group
-getGroup (S shape _) =
-  withForeignPtr shape #{peek cpShape, group}
-setGroup :: Shape -> Group -> IO ()
-setGroup (S shape _) gr =
-  withForeignPtr shape $ \shape_ptr -> do
-    #{poke cpShape, group} shape_ptr gr
+group :: Shape -> StateVar Group
+group (S shape _) = makeStateVar getter setter
+    where
+      getter = withForeignPtr shape #{peek cpShape, group}
+      setter = withForeignPtr shape . flip #{poke cpShape, group}
 
 -- | Layers are similar to groups, but use a bitmask. For a collision
 --   to occur, two shapes must have at least one layer in common.
@@ -197,13 +188,11 @@ setGroup (S shape _) gr =
 --   Note that although this type may have more than 32 bits,
 --   for portability you should only rely on the lower 32 bits.
 type Layers = #{type cpLayers}
-getLayers :: Shape -> IO Layers
-getLayers (S shape _) =
-  withForeignPtr shape #{peek cpShape, layers}
-setLayers :: Shape -> Layers -> IO ()
-setLayers (S shape _) lay =
-  withForeignPtr shape $ \shape_ptr -> do
-    #{poke cpShape, layers} shape_ptr lay
+layers :: Shape -> StateVar Layers
+layers (S shape _) = makeStateVar getter setter
+    where
+      getter = withForeignPtr shape #{peek cpShape, layers}
+      setter = withForeignPtr shape . flip #{poke cpShape, layers}
 
 -- | The elasticity of the shape is such that @0.0@ gives no bounce
 --   while @1.0@ give a \"perfect\" bounce. Note that due to
@@ -219,13 +208,11 @@ setLayers (S shape _) lay =
 --   @setElasticIterations@ with something greater than zero,
 --   maybe @10@.
 type Elasticity = CpFloat
-getElasticity :: Shape -> IO Elasticity
-getElasticity (S shape _) =
-  withForeignPtr shape #{peek cpShape, e}
-setElasticity :: Shape -> Elasticity -> IO ()
-setElasticity (S shape _) e =
-  withForeignPtr shape $ \shape_ptr -> do
-    #{poke cpShape, e} shape_ptr e
+elasticity :: Shape -> StateVar Elasticity
+elasticity (S shape _) = makeStateVar getter setter
+    where
+      getter = withForeignPtr shape #{peek cpShape, e}
+      setter = withForeignPtr shape . flip #{poke cpShape, e}
 
 -- | The friction coefficient of the shape according
 --   to Coulumb friction model (i.e. @0.0@ is frictionless,
@@ -236,39 +223,35 @@ setElasticity (S shape _) e =
 --   determined by multiplying the friction coefficient
 --   of both shapes. (default is zero)
 type Friction = CpFloat
-getFriction :: Shape -> IO Friction
-getFriction (S shape _) =
-  withForeignPtr shape #{peek cpShape, u}
-setFriction :: Shape -> Friction -> IO ()
-setFriction (S shape _) u =
-  withForeignPtr shape $ \shape_ptr -> do
-    #{poke cpShape, u} shape_ptr u
+friction :: Shape -> StateVar Friction
+friction (S shape _) = makeStateVar getter setter
+    where
+      getter = withForeignPtr shape #{peek cpShape, u}
+      setter = withForeignPtr shape . flip #{poke cpShape, u}
 
 -- | The surface velocity of the shape. Useful to create
 --   conveyor belts and players that move around. This
 --   value is only used when calculating friction, not
 --   collision. (default is zero)
 type SurfaceVel = Vector
-getSurfaceVel :: Shape -> IO SurfaceVel
-getSurfaceVel (S shape _) =
-  withForeignPtr shape #{peek cpShape, surface_v}
-setSurfaceVel :: Shape -> SurfaceVel -> IO ()
-setSurfaceVel (S shape _) sv =
-  withForeignPtr shape $ \shape_ptr -> do
-    #{poke cpShape, surface_v} shape_ptr sv
+surfaceVel :: Shape -> StateVar SurfaceVel
+surfaceVel (S shape _) = makeStateVar getter setter
+    where
+      getter = withForeignPtr shape #{peek cpShape, surface_v}
+      setter = withForeignPtr shape . flip #{poke cpShape, surface_v}
 
 
 
 
 
--- | @moment m s off@ is a convenience function that calculates
+-- | @momentForShape m s off@ is a convenience function that calculates
 --   the moment of inertia for shape @s@ with mass @m@ and at a
 --   offset @off@ of the body's center.  Uses 'momentForCircle',
 --   'momentForSegment' and 'momentForPoly' internally.
-moment :: Mass -> ShapeType -> Position -> Moment
-moment m (Circle r)            off = m*(r*r + (off `dot` off))
-moment m (LineSegment p1 p2 _) off = momentForSegment m (p1+off) (p2+off)
-moment m (Polygon verts)       off = momentForPoly m verts off
+momentForShape :: Mass -> ShapeType -> Position -> Moment
+momentForShape m (Circle r)            off = m*(r*r + (off `dot` off))
+momentForShape m (LineSegment p1 p2 _) off = momentForSegment m (p1+off) (p2+off)
+momentForShape m (Polygon verts)       off = momentForPoly m verts off
 
 -- | @momentForCircle m (ri,ro) off@ is the moment of inertia
 --   of a circle of @m@ mass, inner radius of @ri@, outer radius

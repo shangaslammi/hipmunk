@@ -1,5 +1,6 @@
 Version 5.2.0
 =============
+ - Use package StateVar for all variables.
  - Do not use Chipmunk's debug mode.
 
 Version 5.1.0

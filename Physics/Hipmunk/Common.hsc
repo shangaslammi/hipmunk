@@ -60,24 +60,20 @@ module Physics.Hipmunk.Common
 
      -- ** Contact persistence
      -- $contact_persistence
-     getContactPersistence,
-     setContactPersistence,
+     contactPersistence,
 
      -- ** Collision slop
      -- $collision_slop
-     getCollisionSlop,
-     setCollisionSlop,
+     collisionSlop,
 
      -- ** Bias coefficient
      -- $bias_coef
      BiasCoef,
-     getBiasCoef,
-     setBiasCoef,
+     biasCoef,
 
      -- ** Constraint bias coefficient
      -- $constraint_bias_coef
-     getConstraintBiasCoef,
-     setConstraintBiasCoef,
+     constraintBiasCoef,
 
      -- * Vectors
      Vector(..),
@@ -96,6 +92,7 @@ module Physics.Hipmunk.Common
     )
     where
 
+import Data.StateVar
 import Foreign hiding (rotate)
 import Foreign.C.Types (CInt)
 #include "wrapper.h"
@@ -170,11 +167,11 @@ foreign import ccall unsafe "wrapper.h"
 --   It should be small as the cached contacts will only be
 --   close for a short time. (default is 3)
 
-getContactPersistence :: IO CInt
-getContactPersistence = peek cp_contact_persistence
+contactPersistence :: StateVar CInt
+contactPersistence = makeStateVarFromPtr cp_contact_persistence
 
-setContactPersistence :: CInt -> IO ()
-setContactPersistence = poke cp_contact_persistence
+makeStateVarFromPtr :: Storable a => Ptr a -> StateVar a
+makeStateVarFromPtr p = makeStateVar (peek p) (poke p)
 
 foreign import ccall unsafe "wrapper.h &cp_contact_persistence"
     cp_contact_persistence :: Ptr CInt
@@ -186,11 +183,8 @@ foreign import ccall unsafe "wrapper.h &cp_contact_persistence"
 --   small positive amount will help prevent oscillating
 --   contacts. (default is 0.1)
 
-getCollisionSlop :: IO CpFloat
-getCollisionSlop = peek cp_collision_slop
-
-setCollisionSlop :: CpFloat -> IO ()
-setCollisionSlop = poke cp_collision_slop
+collisionSlop :: StateVar CpFloat
+collisionSlop = makeStateVarFromPtr cp_collision_slop
 
 foreign import ccall unsafe "wrapper.h &cp_collision_slop"
     cp_collision_slop :: Ptr CpFloat
@@ -202,11 +196,8 @@ foreign import ccall unsafe "wrapper.h &cp_collision_slop"
 --   fewer steps, but can cause vibration. (default is 0.1)
 type BiasCoef = CpFloat
 
-getBiasCoef :: IO BiasCoef
-getBiasCoef = peek cp_bias_coef
-
-setBiasCoef :: BiasCoef -> IO ()
-setBiasCoef = poke cp_bias_coef
+biasCoef :: StateVar BiasCoef
+biasCoef = makeStateVarFromPtr cp_bias_coef
 
 foreign import ccall unsafe "wrapper.h &cp_bias_coef"
     cp_bias_coef :: Ptr CpFloat
@@ -216,11 +207,8 @@ foreign import ccall unsafe "wrapper.h &cp_bias_coef"
 --   Similar to the bias coefficient, but sets the default bias
 --   for all constraints. (default is 0.1)
 
-getConstraintBiasCoef :: IO BiasCoef
-getConstraintBiasCoef = peek cp_constraint_bias_coef
-
-setConstraintBiasCoef :: BiasCoef -> IO ()
-setConstraintBiasCoef = poke cp_constraint_bias_coef
+constraintBiasCoef :: StateVar BiasCoef
+constraintBiasCoef = makeStateVarFromPtr cp_constraint_bias_coef
 
 foreign import ccall unsafe "wrapper.h &cp_constraint_bias_coef"
     cp_constraint_bias_coef :: Ptr CpFloat

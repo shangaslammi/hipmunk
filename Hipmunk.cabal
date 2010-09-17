@@ -23,6 +23,8 @@ Description:
       .
       New in version 5.2.0:
       .
+      * Use package StateVar for all variables.
+      .
       * Do not use Chipmunk's debug mode.
       .
       New in version 5.1.0:
@@ -149,10 +151,12 @@ Library
     Build-Depends: base >= 3 && < 5,
                    array >= 0.1 && < 0.4,
                    containers >= 0.1 && < 0.4,
-                   transformers >= 0.2 && < 0.3
+                   transformers >= 0.2 && < 0.3,
+                   StateVar >= 1.0 && < 1.1
   else
     Build-Depends: base >= 2 && < 3,
-                   transformers >= 0.2 && < 0.3
+                   transformers >= 0.2 && < 0.3,
+                   StateVar >= 1.0 && < 1.1
   Extensions:    CPP, ForeignFunctionInterface
   Build-Tools:   hsc2hs
   GHC-Options:   -Wall

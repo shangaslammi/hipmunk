@@ -27,22 +27,18 @@ module Physics.Hipmunk.Space
      -- * Properties
      -- ** Iterations
      Iterations,
-     getIterations,
-     setIterations,
+     iterations,
      -- ** Elastic iterations
      ElasticIterations,
-     getElasticIterations,
-     setElasticIterations,
+     elasticIterations,
      -- ** Gravity
      Gravity,
-     getGravity,
-     setGravity,
+     gravity,
      -- ** Damping
-     getDamping,
-     setDamping,
+     damping,
      -- ** Time stamp
      TimeStamp,
-     getTimeStamp,
+     timeStamp,
 
      -- * Spatial hashes
      -- $resizing
@@ -64,6 +60,7 @@ import qualified Data.Map as M
 import Control.Exception (bracket)
 import Control.Monad (when)
 import Data.IORef
+import Data.StateVar
 import Foreign hiding (new)
 import Foreign.C.Types (CInt)
 #include "wrapper.h"
@@ -157,9 +154,9 @@ spaceAddHelper :: (a -> ForeignPtr b)
                -> (SpacePtr -> Ptr b -> IO ())
                -> (a -> Maybe Shape)
                -> (Space -> a -> IO ())
-spaceAddHelper get add toShape =
+spaceAddHelper get_ add toShape =
     \(P sp entities _) new_c ->
-        let new  = get new_c
+        let new  = get_ new_c
             key  = unsafeForeignPtrToPtr $ castForeignPtr new
             val  = case toShape new_c of
                      Just shape -> Right shape
@@ -172,9 +169,9 @@ spaceAddHelper get add toShape =
 spaceRemoveHelper :: (a -> ForeignPtr b)
                   -> (SpacePtr -> Ptr b -> IO ())
                   -> (Space -> a -> IO ())
-spaceRemoveHelper get remove =
+spaceRemoveHelper get_ remove =
     \(P sp entities _) old_c -> do
-      let old  = get old_c
+      let old  = get_ old_c
           key  = unsafeForeignPtrToPtr $ castForeignPtr old
       modifyIORef' entities (M.delete key)
       withForeignPtr sp $ \sp_ptr ->
@@ -247,53 +244,45 @@ foreign import ccall {- !!! -} safe {- !!! -} "wrapper.h"
 -- | The number of iterations to use when solving constraints.
 --   (default is 10).
 type Iterations = CInt
-getIterations :: Space -> IO Iterations
-getIterations (P sp _ _) =
-    withForeignPtr sp #{peek cpSpace, iterations}
-setIterations :: Space -> Iterations -> IO ()
-setIterations (P sp _ _) it =
-    withForeignPtr sp $ \sp_ptr -> do
-      #{poke cpSpace, iterations} sp_ptr it
+iterations :: Space -> StateVar Iterations
+iterations (P sp _ _) = makeStateVar getter setter
+    where
+      getter = withForeignPtr sp #{peek cpSpace, iterations}
+      setter = withForeignPtr sp . flip #{poke cpSpace, iterations}
 
 -- | The number of elastic iterations to use when solving
 --   constraints.  If @0@, then old-style elastic code is used.
 --   (default is 0).
 type ElasticIterations = CInt
-getElasticIterations :: Space -> IO ElasticIterations
-getElasticIterations (P sp _ _) =
-    withForeignPtr sp #{peek cpSpace, elasticIterations}
-{-# DEPRECATED setElasticIterations "Elastic iterations should no longer be needed" #-}
-setElasticIterations :: Space -> ElasticIterations -> IO ()
-setElasticIterations (P sp _ _) it =
-    withForeignPtr sp $ \sp_ptr -> do
-      #{poke cpSpace, elasticIterations} sp_ptr it
+{-# DEPRECATED elasticIterations "Elastic iterations should no longer be needed" #-}
+elasticIterations :: Space -> StateVar ElasticIterations
+elasticIterations (P sp _ _) = makeStateVar getter setter
+    where
+      getter = withForeignPtr sp #{peek cpSpace, elasticIterations}
+      setter = withForeignPtr sp . flip #{poke cpSpace, elasticIterations}
 
 -- | The gravity applied to the system. (default is 0)
 type Gravity = Vector
-getGravity :: Space -> IO Gravity
-getGravity (P sp _ _) =
-    withForeignPtr sp #{peek cpSpace, gravity}
-setGravity :: Space -> Gravity -> IO ()
-setGravity (P sp _ _) g =
-    withForeignPtr sp $ \sp_ptr -> do
-      #{poke cpSpace, gravity} sp_ptr g
+gravity :: Space -> StateVar Gravity
+gravity (P sp _ _) = makeStateVar getter setter
+    where
+      getter = withForeignPtr sp #{peek cpSpace, gravity}
+      setter = withForeignPtr sp . flip #{poke cpSpace, gravity}
 
 -- | The amount of viscous damping applied to the system.
 --   (default is 1)
-getDamping :: Space -> IO Damping
-getDamping (P sp _ _) =
-    withForeignPtr sp #{peek cpSpace, damping}
-setDamping :: Space -> Damping -> IO ()
-setDamping (P sp _ _) dm =
-    withForeignPtr sp $ \sp_ptr -> do
-      #{poke cpSpace, damping} sp_ptr dm
+damping :: Space -> StateVar Damping
+damping (P sp _ _) = makeStateVar getter setter
+    where
+      getter = withForeignPtr sp #{peek cpSpace, damping}
+      setter = withForeignPtr sp . flip #{poke cpSpace, damping}
 
 -- | The time stamp of the simulation, increased in 1
 --   every time 'step' is called.
 type TimeStamp = CInt
-getTimeStamp :: Space -> IO TimeStamp
-getTimeStamp (P sp _ _) =
-    withForeignPtr sp #{peek cpSpace, stamp}
+timeStamp :: Space -> GettableStateVar TimeStamp
+timeStamp (P sp _ _) = makeGettableStateVar $
+                       withForeignPtr sp #{peek cpSpace, stamp}
 
 
 
@@ -370,11 +359,11 @@ foreign import ccall unsafe "wrapper.h"
 --   and only once, for each of the shapes described above
 --   (and never for those who aren't).
 spaceQuery :: Space -> Position -> Layers -> Group -> (Shape -> IO ()) -> IO ()
-spaceQuery spce@(P sp _ _) pos layers group callback =
+spaceQuery spce@(P sp _ _) pos layers_ group_ callback =
   withForeignPtr sp $ \sp_ptr ->
   bracket (makePointQueryFunc cb) freeHaskellFunPtr $ \cb_ptr ->
   with pos $ \pos_ptr ->
-    wrSpacePointQuery sp_ptr pos_ptr layers group cb_ptr
+    wrSpacePointQuery sp_ptr pos_ptr layers_ group_ cb_ptr
  where
    cb shape_ptr _ = retriveShape spce shape_ptr >>= callback
 
@@ -391,9 +380,9 @@ foreign import ccall safe "wrapper.h"
 --   returns a list of 'Shape's instead of calling a callback.
 --   This is just a convenience function.
 spaceQueryList :: Space -> Position -> Layers -> Group -> IO [Shape]
-spaceQueryList spce pos layers group = do
+spaceQueryList spce pos layers_ group_ = do
   var <- newIORef []
-  spaceQuery spce pos layers group $ modifyIORef var . (:)
+  spaceQuery spce pos layers_ group_ $ modifyIORef var . (:)
   readIORef var
 
 

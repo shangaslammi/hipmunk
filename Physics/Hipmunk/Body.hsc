@@ -21,42 +21,32 @@ module Physics.Hipmunk.Body
      -- ** Basic
      -- *** Mass
      Mass,
-     getMass,
-     setMass,
+     mass,
      -- *** Moment of inertia
      Moment,
-     getMoment,
-     setMoment,
+     moment,
 
      -- ** Linear components of motion
      -- *** Position
-     getPosition,
-     setPosition,
+     position,
      -- *** Velocity
      Velocity,
-     getVelocity,
-     setVelocity,
-     getMaxVelocity,
-     setMaxVelocity,
+     velocity,
+     maxVelocity,
      -- *** Force
      Force,
-     getForce,
-     setForce,
+     force,
 
      -- ** Angular components of motion
      -- *** Angle
-     getAngle,
-     setAngle,
+     angle,
      -- *** Angular velocity
      AngVel,
-     getAngVel,
-     setAngVel,
-     getMaxAngVel,
-     setMaxAngVel,
+     angVel,
+     maxAngVel,
      -- *** Torque
      Torque,
-     getTorque,
-     setTorque,
+     torque,
 
      -- * Dynamic properties
      slew,
@@ -74,6 +64,7 @@ module Physics.Hipmunk.Body
     )
     where
 
+import Data.StateVar
 import Foreign hiding (rotate, new)
 #include "wrapper.h"
 
@@ -85,10 +76,10 @@ import Physics.Hipmunk.Internal
 --
 --   It is recommended to call 'setPosition' afterwards.
 newBody :: Mass -> Moment -> IO Body
-newBody mass inertia = do
+newBody mass_ inertia = do
   b <- mallocForeignPtrBytes #{size cpBody}
   withForeignPtr b $ \ptr -> do
-    cpBodyInit ptr mass inertia
+    cpBodyInit ptr mass_ inertia
   return (B b)
 
 foreign import ccall unsafe "wrapper.h"
@@ -98,15 +89,11 @@ foreign import ccall unsafe "wrapper.h"
 
 type Mass = CpFloat
 
-getMass :: Body -> IO Mass
-getMass (B b) = do
-  withForeignPtr b $ \ptr -> do
-    #{peek cpBody, m} ptr
-
-setMass :: Body -> Mass -> IO ()
-setMass (B b) m = do
-  withForeignPtr b $ \ptr -> do
-    cpBodySetMass ptr m
+mass :: Body -> StateVar Mass
+mass (B b) = makeStateVar getter setter
+    where
+      getter = withForeignPtr b #{peek cpBody, m}
+      setter = withForeignPtr b . flip cpBodySetMass
 
 foreign import ccall unsafe "wrapper.h"
     cpBodySetMass :: BodyPtr -> Mass -> IO ()
@@ -114,124 +101,88 @@ foreign import ccall unsafe "wrapper.h"
 
 type Moment = CpFloat
 
-getMoment :: Body -> IO Moment
-getMoment (B b) = do
-  withForeignPtr b $ \ptr -> do
-    #{peek cpBody, i} ptr
-
-setMoment :: Body -> Moment -> IO ()
-setMoment (B b) i = do
-  withForeignPtr b $ \ptr -> do
-    cpBodySetMoment ptr i
+moment :: Body -> StateVar Moment
+moment (B b) = makeStateVar getter setter
+    where
+      getter = withForeignPtr b #{peek cpBody, i}
+      setter = withForeignPtr b . flip cpBodySetMoment
 
 foreign import ccall unsafe "wrapper.h"
     cpBodySetMoment :: BodyPtr -> CpFloat -> IO ()
 
 
 
-getAngle :: Body -> IO Angle
-getAngle (B b) = do
-  withForeignPtr b $ \ptr -> do
-    #{peek cpBody, a} ptr
-
-setAngle :: Body -> Angle -> IO ()
-setAngle (B b) a = do
-  withForeignPtr b $ \ptr -> do
-    cpBodySetAngle ptr a
+angle :: Body -> StateVar Angle
+angle (B b) = makeStateVar getter setter
+    where
+      getter = withForeignPtr b #{peek cpBody, a}
+      setter = withForeignPtr b . flip cpBodySetAngle
 
 foreign import ccall unsafe "wrapper.h"
     cpBodySetAngle :: BodyPtr -> CpFloat -> IO ()
 
 
 
-getPosition :: Body -> IO Position
-getPosition (B b) = do
-  withForeignPtr b $ \ptr -> do
-    #{peek cpBody, p} ptr
-
 -- | Note that using this function to change the position
 --   on every step is not recommended as it may leave
 --   the velocity out of sync.
-setPosition :: Body -> Position -> IO ()
-setPosition (B b) pos = do
-  withForeignPtr b $ \ptr -> do
-    #{poke cpBody, p} ptr pos
+position :: Body -> StateVar Position
+position (B b) = makeStateVar getter setter
+    where
+      getter = withForeignPtr b #{peek cpBody, p}
+      setter = withForeignPtr b . flip #{poke cpBody, p}
 
 
 type Velocity = Vector
 
-getVelocity :: Body -> IO Velocity
-getVelocity (B b) = do
-  withForeignPtr b $ \ptr -> do
-    #{peek cpBody, v} ptr
-
-setVelocity :: Body -> Velocity -> IO ()
-setVelocity (B b) v = do
-  withForeignPtr b $ \ptr -> do
-    #{poke cpBody, v} ptr v
+velocity :: Body -> StateVar Velocity
+velocity (B b) = makeStateVar getter setter
+    where
+      getter = withForeignPtr b #{peek cpBody, v}
+      setter = withForeignPtr b . flip #{poke cpBody, v}
 
 -- | Maximum linear velocity after integrating, defaults to infinity.
-getMaxVelocity :: Body -> IO CpFloat
-getMaxVelocity (B b) = do
-  withForeignPtr b $ \ptr -> do
-    #{peek cpBody, v_limit} ptr
-
-setMaxVelocity :: Body -> CpFloat -> IO ()
-setMaxVelocity (B b) v_limit = do
-  withForeignPtr b $ \ptr -> do
-    #{poke cpBody, v_limit} ptr v_limit
+maxVelocity :: Body -> StateVar CpFloat
+maxVelocity (B b) = makeStateVar getter setter
+    where
+      getter = withForeignPtr b #{peek cpBody, v_limit}
+      setter = withForeignPtr b . flip #{poke cpBody, v_limit}
 
 
 
 type Force = Vector
 
-getForce :: Body -> IO Force
-getForce (B b) = do
-  withForeignPtr b $ \ptr -> do
-    #{peek cpBody, f} ptr
-
-setForce :: Body -> Force -> IO ()
-setForce (B b) f = do
-  withForeignPtr b $ \ptr -> do
-    #{poke cpBody, f} ptr f
+force :: Body -> StateVar Force
+force (B b) = makeStateVar getter setter
+    where
+      getter = withForeignPtr b #{peek cpBody, f}
+      setter = withForeignPtr b . flip #{poke cpBody, f}
 
 
 type AngVel = CpFloat
 
-getAngVel :: Body -> IO AngVel
-getAngVel (B b) = do
-  withForeignPtr b $ \ptr -> do
-    #{peek cpBody, w} ptr
-
-setAngVel :: Body -> AngVel -> IO ()
-setAngVel (B b) w = do
-  withForeignPtr b $ \ptr -> do
-    #{poke cpBody, w} ptr w
+angVel :: Body -> StateVar AngVel
+angVel (B b) = makeStateVar getter setter
+    where
+      getter = withForeignPtr b #{peek cpBody, w}
+      setter = withForeignPtr b . flip #{poke cpBody, w}
 
 -- | Maximum angular velocity after integrating, defaults to infinity.
-getMaxAngVel :: Body -> IO CpFloat
-getMaxAngVel (B b) = do
-  withForeignPtr b $ \ptr -> do
-    #{peek cpBody, w_limit} ptr
-
-setMaxAngVel :: Body -> CpFloat -> IO ()
-setMaxAngVel (B b) w_limit = do
-  withForeignPtr b $ \ptr -> do
-    #{poke cpBody, w_limit} ptr w_limit
+maxAngVel :: Body -> StateVar CpFloat
+maxAngVel (B b) = makeStateVar getter setter
+    where
+      getter = withForeignPtr b #{peek cpBody, w_limit}
+      setter = withForeignPtr b . flip #{poke cpBody, w_limit}
 
 
 
 type Torque = CpFloat
 
-getTorque :: Body -> IO Torque
-getTorque (B b) = do
-  withForeignPtr b $ \ptr -> do
-    #{peek cpBody, t} ptr
-
-setTorque :: Body -> Torque -> IO ()
-setTorque (B b) t = do
-  withForeignPtr b $ \ptr -> do
-    #{poke cpBody, t} ptr t
+torque :: Body -> StateVar Torque
+torque (B b) = makeStateVar getter setter
+    where
+      getter = withForeignPtr b #{peek cpBody, t}
+      setter = withForeignPtr b . flip #{poke cpBody, t}
 
 
 -- | @slew b newpos dt@ changes the body @b@'s velocity
@@ -281,8 +232,8 @@ foreign import ccall unsafe "wrapper.h"
 --   acting on body @b@.
 resetForces :: Body -> IO ()
 resetForces b = do
-  setForce b 0
-  setTorque b 0
+  force  b $= 0
+  torque b $= 0
 
 
 -- | @applyForce b f r@ applies to the body @b@ the force
@@ -308,8 +259,8 @@ foreign import ccall unsafe "wrapper.h"
 --   case.
 applyOnlyForce :: Body -> Vector -> Position -> IO ()
 applyOnlyForce b f p = do
-  setForce b f
-  setTorque b (p `cross` f)
+  force  b $= f
+  torque b $= p `cross` f
 
 
 -- | @applyImpulse b j r@ applies to the body @b@ the impulse
