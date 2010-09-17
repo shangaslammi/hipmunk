@@ -14,10 +14,10 @@
 
 module Physics.Hipmunk.Constraint
     (-- * Common interface
+     Constraint,
      newConstraint,
      redefineC,
      setBiasCoefC,
-     Constraint,
      -- ** Forgetting the phantom type
      -- $phantom
      Unknown,

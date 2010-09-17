@@ -131,7 +131,7 @@ data Unknown = Unknown
 -- | Type of generic constraint initializar.
 type ConstraintInit = ConstraintPtr -> BodyPtr -> BodyPtr -> IO ()
 
--- | Class implemented by all constraint types.
+-- | Internal.  Class implemented by all constraint types.
 class ConstraintType a where
   size  :: a -> Int
   init_ :: a -> ConstraintInit
@@ -140,7 +140,7 @@ class ConstraintType a where
 
 
 -- | A space is where the simulation really occurs. You add
---   bodies, shapes and constraints to a space and then step it
+--   bodies, shapes and constraints to a space and then @step@ it
 --   to update it as whole.
 data Space = P !(ForeignPtr Space)
                !(IORef Entities)   -- Active and static entities

@@ -253,6 +253,9 @@ iterations (P sp _ _) = makeStateVar getter setter
 -- | The number of elastic iterations to use when solving
 --   constraints.  If @0@, then old-style elastic code is used.
 --   (default is 0).
+--
+--   This property is deprecated.  You should no longer need to
+--   set any value other than the default.
 type ElasticIterations = CInt
 {-# DEPRECATED elasticIterations "Elastic iterations should no longer be needed" #-}
 elasticIterations :: Space -> StateVar ElasticIterations

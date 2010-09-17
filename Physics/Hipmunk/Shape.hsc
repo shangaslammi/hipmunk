@@ -202,11 +202,9 @@ layers (S shape _) = makeStateVar getter setter
 --   calculated by multiplying the elasticity of both shapes.
 --   (default is zero)
 --
---   /IMPORTANT:/ by default old-style elastic iterations are
---   done when the space @step@s, which may result in a
---   not-so-good simulation.  It may be a good idea to use
---   @setElasticIterations@ with something greater than zero,
---   maybe @10@.
+--   By default old-style elastic iterations are done when the
+--   space @step@s.  This used to result in a not-so-good
+--   simulation, but now this is the recommended setting.
 type Elasticity = CpFloat
 elasticity :: Shape -> StateVar Elasticity
 elasticity (S shape _) = makeStateVar getter setter
