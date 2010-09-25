@@ -113,17 +113,13 @@ newSpace =
   mallocForeignPtrBytes #{size cpSpace} >>= \sp ->
   withForeignPtr sp $ \sp_ptr -> do
     cpSpaceInit sp_ptr
-    addForeignPtrFinalizer cpSpaceDestroy sp
-    entities  <- newIORef M.empty
     let n = nullFunPtr
+    entities  <- newIORef M.empty
     callbacks <- newIORef $ CBs (n,n,n,n) M.empty []
     return (P sp entities callbacks)
 
 foreign import ccall unsafe "wrapper.h"
     cpSpaceInit :: SpacePtr -> IO ()
-foreign import ccall unsafe "wrapper.h &cpSpaceDestroy"
-    cpSpaceDestroy :: FunPtr (SpacePtr -> IO ())
-
 
 -- | @freeSpace sp@ frees some memory resources that can't
 --   be automatically deallocated in a portable way.
@@ -131,7 +127,22 @@ foreign import ccall unsafe "wrapper.h &cpSpaceDestroy"
 --   not be used (passing @sp@ to any other function,
 --   including 'freeSpace', results in undefined behavior).
 freeSpace :: Space -> IO ()
-freeSpace (P _ entities callbacks) = do
+freeSpace (P sp entities callbacks) = do
+  -- We could use a finalizer to call cpSpaceDestroy,
+  -- but it is easier to just destroy it here.  The user
+  -- needs to call 'freeSpace' anyways.
+  --
+  -- It is only safe to free all FunPtr's if either:
+  --
+  --  a) We remove all reference to them from the Hipmunk side.
+  --     This entails one foreign call per callback.
+  --
+  --  b) The space has been destroyed.
+  --
+  -- By destroying the space here we guarantee that the callbacks
+  -- can't be called from C land anymore.
+  withForeignPtr sp cpSpaceDestroy
+
   -- The only things we *have* to free are the callbacks,
   -- but we'll release all the IORef contents as well.
   let err :: a
@@ -145,6 +156,9 @@ freeSpace (P _ entities callbacks) = do
 
 freeAll :: F.Foldable t => (a -> IO ()) -> t a -> IO ()
 freeAll f = F.foldr ((>>) . f) (return ())
+
+foreign import ccall unsafe "wrapper.h"
+    cpSpaceDestroy :: SpacePtr -> IO ()
 
 
 
