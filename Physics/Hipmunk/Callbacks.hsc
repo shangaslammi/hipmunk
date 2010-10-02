@@ -240,14 +240,15 @@ shapes :: Callback t (Shape, Shape)
 shapes = do
   arb_ptr <- arbiterPtr
   spce    <- space
-  liftIO $ alloca $ \shape1_ptr_ptr ->
-           alloca $ \shape2_ptr_ptr -> do
-             cpArbiterGetShapes arb_ptr shape1_ptr_ptr shape2_ptr_ptr
-             let get s_ptr_ptr = peek s_ptr_ptr >>= retriveShape spce
-             (,) <$> get shape1_ptr_ptr <*> get shape2_ptr_ptr
-
-foreign import ccall unsafe "wrapper.h"
-    cpArbiterGetShapes :: ArbiterPtr -> Ptr ShapePtr -> Ptr ShapePtr -> IO ()
+  liftIO $ do
+    shA_ptr <- #{peek cpArbiter, private_a}   arb_ptr
+    shB_ptr <- #{peek cpArbiter, private_b}   arb_ptr
+    swapped <- #{peek cpArbiter, swappedColl} arb_ptr
+    shapeA  <- retriveShape spce shA_ptr
+    shapeB  <- retriveShape spce shB_ptr
+    if swapped
+      then return (shapeB, shapeA)
+      else return (shapeA, shapeB)
 
 -- | Space from where these shapes come from.
 space :: Callback t Space
@@ -256,12 +257,10 @@ space = ceSpace <$> env
 -- | @True@ iff this is the first step that the shapes touched.
 isFirstContact :: Callback t Bool
 isFirstContact = do
-  ptr <- arbiterPtr
-  i   <- liftIO (cpArbiterIsFirstContact ptr)
-  return (i /= 0)
-
-foreign import ccall unsafe "wrapper.h"
-    cpArbiterIsFirstContact :: ArbiterPtr -> IO Int
+  arb_ptr <- arbiterPtr
+  liftIO $ do
+    arbState <- #{peek cpArbiter, state} arb_ptr :: IO CInt
+    return (arbState == #{const cpArbiterStateFirstColl})
 
 -- | The normal vector of the collision.
 normal :: NotSeparate t => Callback t Vector
