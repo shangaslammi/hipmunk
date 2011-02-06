@@ -113,6 +113,10 @@ Extra-Source-Files:
 Flag small_base
   Description: Choose the new smaller, split-up base package.
 
+Flag debug
+  Description: Enable debugging.
+  Default: False
+
 
 Library
   Exposed-Modules:
@@ -172,5 +176,10 @@ Library
   Extensions:    CPP, ForeignFunctionInterface
   Build-Tools:   hsc2hs
   GHC-Options:   -Wall
-  CC-Options:    -ffast-math -std=gnu99 -DNDEBUG
+  CC-Options:    -ffast-math -std=gnu99
+  if flag(debug)
+    GHC-Options: -debug
+    CC-Options:  -g
+  else
+    CC-Options:  -DNDEBUG
   Extra-Libraries: m
