@@ -1,3 +1,4 @@
+ - Update to Chipmunk 5.3.4.
  - Fix linking bug present since Hipmunk 5.1.0.  Thanks, Sönke Hahn.
  - Correctly destroy the space in the presence of callbacks.
 

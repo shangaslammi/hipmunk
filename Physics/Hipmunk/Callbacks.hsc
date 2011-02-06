@@ -241,8 +241,8 @@ shapes = do
   arb_ptr <- arbiterPtr
   spce    <- space
   liftIO $ do
-    shA_ptr <- #{peek cpArbiter, private_a}   arb_ptr
-    shB_ptr <- #{peek cpArbiter, private_b}   arb_ptr
+    shA_ptr <- #{peek cpArbiter, a} arb_ptr
+    shB_ptr <- #{peek cpArbiter, b} arb_ptr
     swapped <- #{peek cpArbiter, swappedColl} arb_ptr
     shapeA  <- retriveShape spce shA_ptr
     shapeB  <- retriveShape spce shB_ptr
