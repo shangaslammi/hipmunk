@@ -3,7 +3,7 @@ Build-Type:    Simple
 Tested-With:   GHC
 Category:      Physics, Game
 Name:          Hipmunk
-Version:       5.2.0.1
+Version:       5.2.0.2
 Stability:     provisional
 License:       OtherLicense
 License-File:  LICENSE
@@ -22,31 +22,20 @@ Description:
       <http://hackage.haskell.org/package/HipmunkPlayground>
       for a demonstration of this library.
       .
-      New in version 5.2.0.1:
+      New in version 5.2.0.2:
       .
-      * Minor documentation fixes.
+      * Update to Chipmunk 5.3.4.  Note, however, that not all
+        functionality available in Chipmunk 5.3.4 is here yet.  But
+        the bug fixes and performance improvements are.
       .
-      New in version 5.2.0:
+      * Fix linking bug present since Hipmunk 5.1.0.  Thanks, Sönke Hahn.
       .
-      * Use package StateVar for all variables.
+      * Correctly destroy the space in the presence of callbacks.
       .
-      * Do not use Chipmunk's debug mode.
-      .
-      New in version 5.1.0:
-      .
-      * Updated to Chipmunk 5.0 revision 402.
-        'setElasticIterations' is now deprecated.
-      .
-      * New, revamped callback system.  See module
-        "Physics.Hipmunk.Callbacks".
-      .
-      * Support for the new ratchet joint.  Thanks, Owen
-        Anderson.
-      .
-      * Support for limits on linear and angular velocities.
-      .
-      * @shapePointQuery@ and @shapeSegmentQuery@ don't filter
-        groups and layers anymore.
+      * Workaround difficult-to-reproduce bug in Chipmunk where the
+        number of contact points in an arbiter would get garbage.
+        When that happens (and the garbage does look like garbage) we
+        give an empty list of contact points.
       .
       Licensed under the MIT license (like Chipmunk itself).
 Extra-Source-Files:
