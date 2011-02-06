@@ -53,6 +53,7 @@ Extra-Source-Files:
       NEWS,
       Chipmunk-5.3.4/include/chipmunk/chipmunk_ffi.h,
       Chipmunk-5.3.4/include/chipmunk/chipmunk.h,
+      Chipmunk-5.3.4/include/chipmunk/chipmunk_private.h,
       Chipmunk-5.3.4/include/chipmunk/chipmunk_types.h,
       Chipmunk-5.3.4/include/chipmunk/chipmunk_unsafe.h,
       Chipmunk-5.3.4/include/chipmunk/constraints/cpConstraint.h,
