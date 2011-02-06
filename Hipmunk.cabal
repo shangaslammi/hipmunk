@@ -167,7 +167,6 @@ Library
   GHC-Options:   -Wall
   CC-Options:    -ffast-math -std=gnu99
   if flag(debug)
-    GHC-Options: -debug
     CC-Options:  -g
   else
     CC-Options:  -DNDEBUG
