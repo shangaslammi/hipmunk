@@ -286,7 +286,8 @@ points = do
   ptr <- arbiterPtr
   numContacts  <- liftIO $ #{peek cpArbiter, numContacts} ptr
   contacts_ptr <- liftIO $ #{peek cpArbiter, contacts} ptr
-  if numContacts <= 0
+  -- XXX: Why should numContacts ever get garbage?
+  if numContacts <= 0 || numContacts > #{const CP_MAX_CONTACTS_PER_ARBITER}
     then return []
     else liftIO $ go [] numContacts (contacts_ptr `advancePtr` (numContacts-1))
 

@@ -1,6 +1,10 @@
  - Update to Chipmunk 5.3.4.
  - Fix linking bug present since Hipmunk 5.1.0.  Thanks, Sönke Hahn.
  - Correctly destroy the space in the presence of callbacks.
+ - Workaround difficult-to-reproduce bug in Chipmunk where the
+   number of contact points in an arbiter would get garbage.
+   When that happens (and the garbage does look like garbage) we
+   give an empty list of contact points.
 
 Version 5.2.0.1
 ===============
