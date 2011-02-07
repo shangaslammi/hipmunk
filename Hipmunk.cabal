@@ -38,6 +38,7 @@ Description:
       Licensed under the MIT license (like Chipmunk itself).
 Extra-Source-Files:
       NEWS,
+      TODO,
       Chipmunk-5.3.4/include/chipmunk/chipmunk_ffi.h,
       Chipmunk-5.3.4/include/chipmunk/chipmunk.h,
       Chipmunk-5.3.4/include/chipmunk/chipmunk_private.h,
