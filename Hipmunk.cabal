@@ -14,12 +14,10 @@ Synopsis:      A Haskell binding for Chipmunk.
 Homepage:      http://patch-tag.com/r/felipe/hipmunk/home
 Description:
       Chipmunk is a fast, simple, portable, 2D physics engine
-      (<http://code.google.com/p/chipmunk-physics/> and
-      <http://wiki.slembcke.net/main/published/Chipmunk>).  This
-      package contains a prerelease Chipmunk 5.0 source and
-      Haskell bindings to all of its functions. It is
-      completely self-contained.  Please see
-      <http://hackage.haskell.org/package/HipmunkPlayground>
+      (<http://code.google.com/p/chipmunk-physics/>).  This
+      package the Chipmunk 5.3.4 source and Haskell bindings to
+      all of its functions. It is completely self-contained.
+      Please see <http://hackage.haskell.org/package/HipmunkPlayground>
       for a demonstration of this library.
       .
       New in version 5.2.0.2:
