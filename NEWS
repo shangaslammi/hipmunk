@@ -1,3 +1,9 @@
+Version 5.2.0.3
+===============
+ - Update to Chipmunk 5.3.5 and bump dependencies to
+   match GHC 7.2.1. (Thanks, Sönke Hahn!)
+ - Now Sönke Hahn is also a Hipmunk maintainer.  Awesome!
+
 Version 5.2.0.2
 ===============
  - Update to Chipmunk 5.3.4.  Note, however, that not all
