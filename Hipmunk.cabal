@@ -21,6 +21,7 @@ Description:
       for a demonstration of this library.
       .
       New in version 5.2.0.3:
+      .
       * Update to Chipmunk 5.3.5 and bump dependencies to
         match GHC 7.2.1. (Thanks, Sönke Hahn!)
       .
