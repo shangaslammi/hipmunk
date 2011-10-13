@@ -1,3 +1,9 @@
+Version 5.2.0.4
+===============
+ - New system-chipmunk flag.  When activated, the package will
+   use the system-wide installed Chipmunk library.  Thanks,
+   Joachim Breitner.
+
 Version 5.2.0.3
 ===============
  - Update to Chipmunk 5.3.5 and bump dependencies to
