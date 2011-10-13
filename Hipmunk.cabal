@@ -146,7 +146,7 @@ Library
   if flag(system-chipmunk)
     Include-Dirs:
         /usr/include/chipmunk
-     Extra-libraries:
+    Extra-libraries:
         chipmunk
   else
     Include-Dirs:
