@@ -1,3 +1,8 @@
+Version 5.2.0.5
+===============
+ - Always compile @wrapper.c@ and fix Haddock errors
+   while handling Unicode.  Thanks, Joachim Breitner.
+
 Version 5.2.0.4
 ===============
  - New system-chipmunk flag.  When activated, the package will
