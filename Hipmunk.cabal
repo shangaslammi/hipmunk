@@ -177,7 +177,9 @@ Library
         Chipmunk-5.3.5/src/cpSpaceHash.c,
         Chipmunk-5.3.5/src/cpSpaceQuery.c,
         Chipmunk-5.3.5/src/cpSpaceStep.c,
-        Chipmunk-5.3.5/src/cpVect.c,
+        Chipmunk-5.3.5/src/cpVect.c
+
+  C-Sources:
         Physics/Hipmunk/wrapper.c
 
   if flag(small_base)
