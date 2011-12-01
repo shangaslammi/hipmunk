@@ -498,15 +498,15 @@ addCollisionHandler spce@(P _ _ callbacks) cta ctb handler = do
   let handlerAdder p = cpSpaceAddCollisionHandler p cta ctb
   ptrs <- addHandler spce handlerAdder handler
 
-  -- Free the previous one and record the new one, using
-  --   updateLookupWithKey :: Ord k => (k -> a -> Maybe a) -> k
-  --                       -> Map k a -> (Maybe a, Map k a)
+  -- Free the previous one and record the new one.
   cbs <- readIORef callbacks
   let handlers = cbsHandlers cbs
-      val = case handler of
-              Handler Nothing Nothing Nothing Nothing -> Nothing
-              _                                       -> Just ptrs
-      (old,handlers') = M.updateLookupWithKey (\_ _ -> val) (cta,ctb) handlers
+      old = M.lookup (cta,ctb) handlers
+      handlers' =
+            if ptrs == (nullFunPtr, nullFunPtr, nullFunPtr, nullFunPtr)
+                -- no need to gc nullFunPtrs
+            then handlers
+            else M.insert (cta,ctb) ptrs handlers
   maybe (return ()) freeHandlerFunPtrs old
   writeIORef callbacks $ cbs {cbsHandlers = handlers'}
 
