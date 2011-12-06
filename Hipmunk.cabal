@@ -3,7 +3,7 @@ Build-Type:    Simple
 Tested-With:   GHC
 Category:      Physics, Game
 Name:          Hipmunk
-Version:       5.2.0.5
+Version:       5.2.0.6
 Stability:     provisional
 License:       OtherLicense
 License-File:  LICENSE
@@ -20,10 +20,14 @@ Description:
       Please see <http://hackage.haskell.org/package/HipmunkPlayground>
       for a demonstration of this library.
       .
+      New in version 5.2.0.6:
+      .
+      * Fixed a memory leak related to collision handlers.
+      .
       New in version 5.2.0.5:
       .
       * Always compile @wrapper.c@ and fix Haddock errors
-	while handling Unicode.  Thanks, Joachim Breitner.
+        while handling Unicode.  Thanks, Joachim Breitner.
       .
       New in version 5.2.0.4:
       .

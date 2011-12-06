@@ -1,3 +1,7 @@
+Version 5.2.0.6
+===============
+ - Fixed a memory leak related to collision handlers.
+
 Version 5.2.0.5
 ===============
  - Always compile @wrapper.c@ and fix Haddock errors
