@@ -193,7 +193,7 @@ class Entity a where
 
 -- | Arbiters are used within callbacks.  We don't expose them to
 -- the user.
-data Arbiter = Arbiter
+data Arbiter
 type ArbiterPtr = Ptr Arbiter
 
 

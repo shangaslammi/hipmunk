@@ -201,7 +201,7 @@ Library
     Build-Depends: base >= 2 && < 3,
                    transformers >= 0.2 && < 0.3,
                    StateVar >= 1.0 && < 1.1
-  Extensions:    CPP, ForeignFunctionInterface
+  Extensions:    CPP, ForeignFunctionInterface, EmptyDataDecls
   Build-Tools:   hsc2hs
   GHC-Options:   -Wall
   CC-Options:    -ffast-math -std=gnu99

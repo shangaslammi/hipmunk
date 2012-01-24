@@ -143,16 +143,16 @@ import Physics.Hipmunk.Shape
 
 
 -- | Phantom type used in @Begin@ collision events.
-data Begin      = Begin
+data Begin
 
 -- | Phantom type used in @PreSolve@ collision events.
-data PreSolve   = PreSolve
+data PreSolve
 
 -- | Phantom type used in @PostSolve@ collision events.
-data PostSolve  = PostSolve
+data PostSolve
 
 -- | Phantom type used in @Separate@ collision events.
-data Separate   = Separate
+data Separate
 
 -- | Phantom type used in @PostStep@ callbacks.
 --
@@ -161,7 +161,7 @@ data Separate   = Separate
 --  For example, if you add a @PostStep@ from a @Begin@ handler,
 --  then it will have type @PostStep Begin@.  It is used by the
 --  @PostStep@'s instance of 'NotSeparate'.
-data PostStep t = PostStep
+data PostStep t
 
 -- | Class of collision events other than @Separate@.  That is,
 -- collision events where the shapes are touching or overlapping.
