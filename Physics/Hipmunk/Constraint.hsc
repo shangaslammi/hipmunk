@@ -18,6 +18,8 @@ module Physics.Hipmunk.Constraint
      newConstraint,
      redefineC,
      setBiasCoefC,
+     setMaxBias,
+     setMaxForce,
      -- ** Forgetting the phantom type
      -- $phantom
      Unknown,
@@ -105,6 +107,12 @@ redefineC (C c b1 b2) t = withForeignPtr c $ \c_ptr -> redef c_ptr b1 b2 t
 --   'setConstraintBiasCoef', which initially is @0.1@
 setBiasCoefC :: BiasCoef -> Constraint a -> IO ()
 setBiasCoefC b (C c _ _) = withForeignPtr c $ flip #{poke cpConstraint, biasCoef} b
+
+setMaxBias :: CpFloat -> Constraint a -> IO ()
+setMaxBias b (C c _ _) = withForeignPtr c $ flip #{poke cpConstraint, maxBias} b
+
+setMaxForce :: CpFloat -> Constraint a -> IO ()
+setMaxForce b (C c _ _) = withForeignPtr c $ flip #{poke cpConstraint, maxForce} b
 
 -- $phantom
 --   These functions discard the phantom type of the constraint.
