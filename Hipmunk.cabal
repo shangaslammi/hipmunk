@@ -3,7 +3,7 @@ Build-Type:    Simple
 Tested-With:   GHC
 Category:      Physics, Game
 Name:          Hipmunk
-Version:       5.2.0.8
+Version:       5.2.0.9
 Stability:     provisional
 License:       OtherLicense
 License-File:  LICENSE
@@ -19,6 +19,11 @@ Description:
       all of its functions. It is completely self-contained.
       Please see <http://hackage.haskell.org/package/HipmunkPlayground>
       for a demonstration of this library.
+      .
+      New in version 5.2.0.9:
+      .
+      * Added Physics.Hipmunk.Constraint.setMaxBias and setMaxForce.
+        Thanks to Stephen Paul Weber.
       .
       New in version 5.2.0.6:
       .
