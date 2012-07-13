@@ -74,7 +74,7 @@ import Control.Monad.Trans.Reader
 import Data.IORef
 import qualified Data.Map as M
 import Foreign hiding (new)
-import Foreign.C.Types (CInt)
+import Foreign.C.Types (CInt(..))
 #include "wrapper.h"
 
 import Physics.Hipmunk.Common
