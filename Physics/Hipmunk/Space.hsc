@@ -62,7 +62,6 @@ import Control.Monad (when)
 import Data.IORef
 import Data.StateVar
 import Foreign hiding (new)
-import qualified Foreign.ForeignPtr.Unsafe
 import Foreign.C.Types (CInt(..))
 #include "wrapper.h"
 
@@ -172,8 +171,7 @@ spaceAddHelper :: (a -> ForeignPtr b)
 spaceAddHelper get_ add toShape =
     \(P sp entities _) new_c ->
         let new  = get_ new_c
-            key  = Foreign.ForeignPtr.Unsafe.unsafeForeignPtrToPtr $
-                        castForeignPtr new
+            key  = unsafeForeignPtrToPtr $ castForeignPtr new
             val  = case toShape new_c of
                      Just shape -> Right shape
                      Nothing    -> Left (castForeignPtr new)
@@ -188,8 +186,7 @@ spaceRemoveHelper :: (a -> ForeignPtr b)
 spaceRemoveHelper get_ remove =
     \(P sp entities _) old_c -> do
       let old  = get_ old_c
-          key  = Foreign.ForeignPtr.Unsafe.unsafeForeignPtrToPtr $
-                        castForeignPtr old
+          key  = unsafeForeignPtrToPtr $ castForeignPtr old
       modifyIORef' entities (M.delete key)
       withForeignPtr sp $ \sp_ptr ->
         withForeignPtr old $ \old_ptr ->
