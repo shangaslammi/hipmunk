@@ -59,7 +59,7 @@ import qualified Data.Foldable as F
 import qualified Data.Map as M
 import Control.Exception (bracket)
 import Control.Monad (when)
-import Data.IORef
+import Data.IORef (IORef, newIORef, readIORef, writeIORef, modifyIORef)
 import Data.StateVar
 import Foreign hiding (new)
 import Foreign.C.Types (CInt(..))
